@@ -668,8 +668,8 @@ p {
 
 .mapboxgl-popup-content h1 {
   color: grey;
-  font: 20px/20px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
-  margin-bottom: 7px;
+  font: 16px/16px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
+  margin-bottom: 5px;
 }
 
 .mapboxgl-popup-content h1:hover {
@@ -678,20 +678,39 @@ p {
 
 .mapboxgl-popup-content p {
   color: grey;
-  font: 12px/14px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  font: 8px/10px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
 
 .mapboxgl-popup-content p:hover {
   text-decoration: underline;
 }
 
-.portrait-button {
+.interaction-button a {
+  color: white;
+  font: 10px/10px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
+}
+.interaction-button {
+  text-align: center;
   font-size: 1em;
-  margin-top: 5px;
-  padding: 3px;
+  margin-top: 4px;
+  padding: 1px;
   background-color: #04aa6d;
-  color: #fff;
-  border: 1px solid black;
+  border-radius: 5px/5px;
+  cursor: pointer;
+  transition: all 0.3s ease-out;
+}
+
+.portrait-button a {
+  color: white;
+  font: 10px/10px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
+}
+
+.portrait-button {
+  text-align: center;
+  font-size: 1em;
+  margin-top: 4px;
+  padding: 1px;
+  background-color: #74BF6A;
   border-radius: 5px/5px;
   cursor: pointer;
   transition: all 0.3s ease-out;
@@ -702,7 +721,7 @@ p {
   width: 100%;
   position: absolute;
   left: 0;
-  top: 0;
+  top: 50;
 }
 
 #eat {

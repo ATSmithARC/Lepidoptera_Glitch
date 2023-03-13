@@ -621,7 +621,7 @@ map.on("load", () => {
   function poiPopup(f) {
     var input = f.properties.name;
     var encodedInput = encodeURIComponent(input);
-    var portraitURL = "species-portrait.html?input=" + encodedInput;
+    var interactionURL = "species-interactions.html?input=" + encodedInput;
 
     map.flyTo({ center: f.geometry.coordinates });
     popup
@@ -649,8 +649,14 @@ map.on("load", () => {
          </a>
         </p>
         <p>
-         <a href="${portraitURL}" target="_blank" rel="noopener noreferrer">
-          Species Portrait
+          <div class="interaction-button">
+           <a href="${interactionURL}" target="_blank" rel="noopener noreferrer">
+            Interactions
+          </div>
+          <div class="portrait-button">
+           <a href="${interactionURL}" target="_blank" rel="noopener noreferrer">
+            Portrait
+          </div>
          </a>
         </p>
        </div>
@@ -674,6 +680,27 @@ map.on("load", () => {
       let geoJSONpoly = draw.getAll();
       if (geoJSONpoly.features.length > 0) {
         const gbifGeoJSON = await pageRequest(geoJSONpoly);
+        
+        /*
+        // POST to map.json
+        const jsonString = JSON.stringify(gbifGeoJSON);
+        fetch('https://lepidoptera.glitch.me/map.json', {
+        method: 'POST',
+        headers: {
+        Accept: 'map.json',
+        'Content-Type': 'application/json'
+        },
+        Body: jsonString,
+        Cache: 'default'
+        })
+        .then(response => {
+        console.log(response);
+        })
+        .catch(error => {
+        console.error(error);
+        });
+        */
+        
         if (map.getSource("airports") == undefined) {
           map.addSource("airports", {
             type: "geojson",
