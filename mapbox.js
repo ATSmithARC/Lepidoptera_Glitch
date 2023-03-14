@@ -13,7 +13,6 @@ const map = new mapboxgl.Map({
 const modelOrigin = [12.568, 55.6761];
 const modelAltitude = 0;
 const modelRotate = [Math.PI / 2, 0, 0];
-
 const modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
   modelOrigin,
   modelAltitude
@@ -155,7 +154,6 @@ function renderListings(features) {
       });
       listingEl.appendChild(itemLink);
     }
-
     // Show the filter input
     filterEl.parentNode.style.display = "block";
   } else if (features.length === 0 && filterEl.value !== "") {
