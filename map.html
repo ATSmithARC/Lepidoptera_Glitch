@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+    <link rel="stylesheet" href="style.css" />
+
+    <script
+      src="https://code.jquery.com/jquery-2.2.1.min.js"
+      integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+      crossorigin="anonymous"
+    ></script>
+
+    <script>
+      if (location.protocol != "https:") {
+        location.href =
+          "https:" +
+          window.location.href.substring(window.location.protocol.length);
+      }
+    </script>
+
+    <script src="https://unpkg.com/mapbox-gl-draw-waypoint@1.0.3/dist/mapbox-gl-draw-waypoint.min.js"></script>
+    <script src="nav-ui.js"></script>
+    <title>Lepidoptera Map</title>
+  </head>
+
+  <body>
+    <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
+    <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
+    <div class="topnav" id="myTopnav">
+      <a href="index.html">Home</a>
+      <a href="howto.html">How to</a>
+      <a href="login.html">Log in</a>
+      <div class="dropdown">
+        <div class="active">
+          <button class="dropbtn">
+            Maps
+            <i class="fa fa-caret-down"></i>
+          </button>
+        </div>
+        <div class="dropdown-content">
+          <a href="map.html">Species Occurence</a>
+          <a href="map.html">Environment</a>
+          <a href="map.html">Terrain</a>
+        </div>
+      </div>
+      <a href="species-interactions.html">Interactions</a>
+      <a href="about.html">About</a>
+      <a href="javascript:void(0);" class="icon" onclick="myFunction()"
+        >&#9776;</a
+      >
+    </div>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.css"
+      type="text/css"
+    />
+
+    <div id="main">
+      <button class="openbtn" onclick="openNav()">></button>
+      <div id="map">
+        <div id="cy-overlay"></div>
+      </div>
+      <div id="how-to" class="overlay">
+        <div class="how-to">
+          <h2>About Map:</h2>
+          <a class="close" href="#how-to">×</a>
+          <div class="popupcontent">
+            Green dots indicate
+            <a href="https://www.gbif.org/dataset/search?type=OCCURRENCE"
+              >Species Occurences.</a
+            >
+            <br />
+            To access them: <br />
+            <br />
+            1.) Select the Polygon tool in the upper-right corner. <br />
+            <br />
+            2.) Click the map to begin drawing a search permieter using points.
+            <br />
+            <br />
+            3.) Double-click to place the final point, and begin searching.
+          </div>
+        </div>
+      </div>
+
+      <div class="lds-grid">
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+    </div>
+
+    <div id="mySidebar" class="sidebar">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"><</a>
+      <h2>Filters</h2>
+      <nav id="filter-group" class="filter-group"></nav>
+
+      <div class="map-overlay">
+        <fieldset>
+          <input
+            id="feature-filter"
+            type="text"
+            placeholder="Filter visible results by name..."
+          />
+        </fieldset>
+        <div id="feature-listing" class="listing"></div>
+      </div>
+    </div>
+    <script type="text/javascript" src="mapbox.js"></script>
+
+    <div id="debug"></div>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lepidoptera How-To</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="nav-ui.js"></script>
+    
+    <script>
+      if (location.protocol != "https:") {
+        location.href =
+          "https:" +
+          window.location.href.substring(window.location.protocol.length);
+      }
+    </script>
+    
+  </head>
+  <body>
+    <section class="navbar">
+      <div class="topnav" id="myTopnav">
+        <a href="index.html" >Home</a>
+        <a href="howto.html" class="active">How to</a>
+        <a href="login.html">Log in</a>
+        <div class="dropdown">
+          <button class="dropbtn">
+            Maps
+            <i class="fa fa-caret-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <a href="map.html">Species Occurence</a>
+            <a href="map.html">Environment</a>
+            <a href="map.html">Terrain</a>
+          </div>
+        </div>
+        <a href="species-interactions.html">Interactions</a>
+        <a href="about.html">About</a>
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()"
+          >&#9776;</a
+        >
+      </div>
+    </section>
+  </body>
+</html>
