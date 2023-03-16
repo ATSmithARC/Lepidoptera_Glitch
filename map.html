@@ -11,8 +11,12 @@
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+    <style id="__________cytoscape_stylesheet">
+      .__________cytoscape_container {
+        position: relative;
+      }
+    </style>
     <link rel="stylesheet" href="style.css" />
-
     <script
       src="https://code.jquery.com/jquery-2.2.1.min.js"
       integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
@@ -26,7 +30,7 @@
           window.location.href.substring(window.location.protocol.length);
       }
     </script>
-
+    <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
     <script src="https://unpkg.com/mapbox-gl-draw-waypoint@1.0.3/dist/mapbox-gl-draw-waypoint.min.js"></script>
     <script src="nav-ui.js"></script>
     <title>Lepidoptera Map</title>
@@ -67,6 +71,7 @@
     />
 
     <div id="main">
+      <div id="debug"></div>
       <button class="openbtn" onclick="openNav()">></button>
       <div id="map">
         <div id="cy-overlay"></div>
@@ -123,7 +128,5 @@
       </div>
     </div>
     <script type="text/javascript" src="mapbox.js"></script>
-
-    <div id="debug"></div>
   </body>
 </html>

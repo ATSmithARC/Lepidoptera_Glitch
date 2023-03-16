@@ -309,7 +309,7 @@ async function initializePortrait(input) {
     const nodeId = node.id();
     
     // Open a new Portrait for Tapped Node
-    const portraitURL = "species-portrait.html?input=" + nodeId;
+    const portraitURL = "species-interactions.html?input=" + nodeId;
     window.open(portraitURL, '_blank');
     
     /*
