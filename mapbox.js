@@ -8,8 +8,7 @@ const map = new mapboxgl.Map({
   antialias: true,
 });
 
-// 3D Model
-// parameters to ensure the model is georeferenced correctly on the map
+// 3D Model - parameters to ensure the model is georeferenced correctly on the map
 const modelOrigin = [12.568, 55.6761];
 const modelAltitude = 0;
 const modelRotate = [Math.PI / 2, 0, 0];
@@ -26,9 +25,6 @@ const modelTransform = {
   rotateX: modelRotate[0],
   rotateY: modelRotate[1],
   rotateZ: modelRotate[2],
-  /* Since the 3D model is in real world meters, a scale transform needs to be
-   * applied since the CustomLayerInterface expects units in MercatorCoordinates.
-   */
   scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits(),
 };
 
@@ -182,6 +178,77 @@ function getUniqueFeatures(features, comparatorProperty) {
   return uniqueFeatures;
 }
 
+function removeDuplicateNodesEdges(json) {
+  const uniqueNodes = new Map();
+  const uniqueEdges = new Set();
+
+  // Remove duplicate nodes
+  const nodes = json.nodes.filter((node) => {
+    const id = node.data.id;
+    if (uniqueNodes.has(id) || id.includes('BOLD') || id.includes('http')) {
+      return false;
+    }
+    uniqueNodes.set(id, true);
+    return true;
+  });
+
+  // Remove duplicate edges
+  const edges = json.edges.filter((edge) => {
+    const source = edge.data.source;
+    const target = edge.data.target;
+    const key = `${source}:${target}`;
+    if (uniqueEdges.has(key) || source.includes('BOLD') || source.includes('http') || target.includes('BOLD') || target.includes('http')) {
+      return false;
+    }
+    uniqueEdges.add(key);
+    return true;
+  });
+  return { nodes, edges };
+}
+
+async function fetchInteractionData(sourceSpeciesNames) {
+  let uniqueSourceSpecies = [...new Set(sourceSpeciesNames)];
+  const nodes = [];
+  const edges = [];
+  const elements = {nodes, edges};
+  const debug = [];
+  // Add all source species to nodes in JSON format? 
+  for (let i = 0; i < uniqueSourceSpecies.length; i++) {
+   let source = uniqueSourceSpecies[i];
+   let sourceDecoded = decodeURIComponent(source);
+   elements.nodes.push({ data: { id: source, name: sourceDecoded, level: 0 } });
+  }
+  // Gets all targets and interaction types for each source species 
+  const promises = uniqueSourceSpecies.map(source => {
+    const url = `https://api.globalbioticinteractions.org/interaction?sourceTaxon=${source}&interactionType=ecologicallyRelatedTo&fields=interaction_type,target_taxon_name`;
+    return fetch(url)
+      .then(response => response.json())
+      .then(data => data.data)
+      .catch(error => null); // handle any errors during fetch
+  });
+  const results = await Promise.allSettled(promises);
+  const pushResults = await results
+  .filter(result => result.status === 'fulfilled' && result.value !== null)
+  .map(function(result, index) {
+    debug.push(result.value);
+    for (let j = 0; j < result.value.length; j++) {
+     elements.nodes.push({ data: { id: encodeURIComponent(result.value[j][1]), name: result.value[j][1], level: 1 } });
+     elements.edges.push({ data: { source: uniqueSourceSpecies[index], target: encodeURIComponent(result.value[j][1]), interaction: result.value[j][0] } });
+    }
+    return true;
+    });
+  return elements;
+}
+
+function getSpeciesArray(mapFeatureCollection) {
+  const names = [];
+  mapFeatureCollection.forEach(obj => {
+    const name = obj.properties.name;
+    names.push(encodeURIComponent(name));
+  });
+  return names;
+}
+
 map.on("load", () => {
   // Set Map Parameters
   map.boxZoom.disable();
@@ -212,10 +279,6 @@ map.on("load", () => {
 
   // Set 3D Terrain
   map.setTerrain({ source: "augmented-dem", exaggeration: 1.5 });
-
-  //Debug
-  //map.showTileBoundaries = true;
-  //map.showTerrainWireframe = true;
 
   // Assign Map Data Sources to Layers
   // GBIF - All Species Occurences as small circles
@@ -664,6 +727,241 @@ map.on("load", () => {
       .addTo(map);
   }
 
+  async function initCytoscapeOverlay() {
+    
+    const renderedMapFeatures = map.queryRenderedFeatures(
+      {layers: [
+        'poi-Animalia', 
+        'poi-Plantae'
+      ]});
+    
+    const inputSpeciesArray = getSpeciesArray(renderedMapFeatures);
+    const interactionData = await fetchInteractionData(inputSpeciesArray);
+    
+    const style1 = {
+    style: [
+      {
+        selector: "node",
+        style: {
+          "height": 80,
+          "width": 80,
+          "background-fit": "cover",
+          "border-color": "#000",
+          "border-width": 3,
+          "border-opacity": 0.5,
+          "label": `data(name)`,
+          "text-valign": "center",
+          "text-halign": "center"
+        },
+      },
+      {
+        selector: "edge",
+        style: {
+          "curve-style": "bezier",
+          "width": 9,
+          "label": `data(interaction)`,
+          "target-arrow-shape": 'triangle',
+          "edge-text-rotation": "autorotate",
+          "font-size": 8,
+        },
+      },
+      {
+        selector: 'edge[interaction = "eatenBy"]',
+        style: {
+          "line-color": "#b30000",
+          "target-arrow-color": "#b30000",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "killedBy"]',
+        style: {
+          "line-color": "#b30000",
+          "target-arrow-color": "#b30000",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "preyedUponBy"]',
+        style: {
+          "line-color": "#b30000",
+          "target-arrow-color": "#b30000",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hasPathogen"]',
+        style: {
+          "line-color": "#7c1158",
+          "target-arrow-color": "#7c1158",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hasParasite"]',
+        style: {
+          "line-color": "#4421af",
+          "target-arrow-color": "#4421af",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "parasiteOf"]',
+        style: {
+          "line-color": "#4421af",
+          "target-arrow-color": "#4421af",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hasEctoparasite"]',
+        style: {
+          "line-color": "#4421af",
+          "target-arrow-color": "#4421af",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "endoparasiteOf"]',
+        style: {
+          "line-color": "#4421af",
+          "target-arrow-color": "#4421af",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hasEndoparasite"]',
+        style: {
+          "line-color": "#4421af",
+          "target-arrow-color": "#4421af",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hostOf"]',
+        style: {
+          "line-color": "#0d88e6",
+          "target-arrow-color": "#0d88e6",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "hasHost"]',
+        style: {
+          "line-color": "#0d88e6",
+          "target-arrow-color": "#0d88e6",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "adjacentTo"]',
+        style: {
+          "line-color": "#00b7c7",
+          "target-arrow-color": "#00b7c7",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "interactsWith"]',
+        style: {
+          "line-color": "#86b6ba",
+          "target-arrow-color": "#86b6ba",
+        },
+      },
+      {
+        selector: 'edge[interaction = "eats"]',
+        style: {
+          "line-color": "#5ad45a",
+          "target-arrow-color": "#5ad45a",
+        },
+      },
+      {
+        selector: 'edge[interaction = "preysOn"]',
+        style: {
+          "line-color": "#5ad45a",
+          "target-arrow-color": "#5ad45a",
+        },
+      },
+      {
+        selector: 'edge[interaction = "mutualistOf"]',
+        style: {
+          "line-color": "#8be04e",
+          "target-arrow-color": "#8be04e",
+        },
+      },
+      {
+        selector: 'edge[interaction = "visitedBy"]',
+        style: {
+          "line-color": "#dc0ab4",
+          "target-arrow-color": "#dc0ab4",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "flowersVisitedBy"]',
+        style: {
+          "line-color": "#dc0ab4",
+          "target-arrow-color": "#dc0ab4",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "visitsFlowersOf"]',
+        style: {
+          "line-color": "#dc0ab4",
+          "target-arrow-color": "#dc0ab4",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "visits"]',
+        style: {
+          "line-color": "#dc0ab4",
+          "target-arrow-color": "#dc0ab4",
+          "color": "white",
+        },
+      },
+      {
+        selector: 'edge[interaction = "pollinates"]',
+        style: {
+          "line-color": "#e6d800",
+          "target-arrow-color": "#e6d800",
+        },
+      },
+      {
+        selector: 'edge[interaction = "pollinatedBy"]',
+        style: {
+          "line-color": "#e6d800",
+          "target-arrow-color": "#e6d800",
+        },
+      },
+    ],
+  };
+    
+    const elements = removeDuplicateNodesEdges(interactionData)
+    //document.getElementById("debug").innerHTML = `<p> ResponseFTWW: ${JSON.stringify(elements)} </p>`
+    var cy = cytoscape({
+      container: document.getElementById("cy-overlay"),
+      boxSelectionEnabled: false,
+      autounselectify: true,
+      style: style1.style,
+      elements: elements,
+      layout: {
+        name: "grid"
+      },
+    });
+    
+    /*
+    cy.on('tap', 'node', async function (e) {
+      const node = e.target;
+      const nodeId = node.id();
+      // Open a new Portrait for Tapped Node
+      const portraitURL = "species-interactions.html?input=" + nodeId;
+      window.open(portraitURL, '_blank');
+    })
+    */
+  }  
+  
   // Update Polygon Search Status
   async function updateSearch(e) {
     if (e.type == "draw.delete") {
@@ -678,27 +976,6 @@ map.on("load", () => {
       let geoJSONpoly = draw.getAll();
       if (geoJSONpoly.features.length > 0) {
         const gbifGeoJSON = await pageRequest(geoJSONpoly);
-        
-        /*
-        // POST to map.json
-        const jsonString = JSON.stringify(gbifGeoJSON);
-        fetch('https://lepidoptera.glitch.me/map.json', {
-        method: 'POST',
-        headers: {
-        Accept: 'map.json',
-        'Content-Type': 'application/json'
-        },
-        Body: jsonString,
-        Cache: 'default'
-        })
-        .then(response => {
-        console.log(response);
-        })
-        .catch(error => {
-        console.error(error);
-        });
-        */
-        
         if (map.getSource("airports") == undefined) {
           map.addSource("airports", {
             type: "geojson",
@@ -721,9 +998,7 @@ map.on("load", () => {
               "circle-stroke-color": "white",
             },
           });
-        } /*else {
-          map.addLayer("airport");
-        } */
+        } 
 
         draw.deleteAll();
         $(".lds-grid").hide();
@@ -767,8 +1042,32 @@ map.on("load", () => {
                 e.target.checked ? "visible" : "none"
               );
             });
+
           }
         }
+        
+        // Add Button to View All Interactions Network
+            const interactions = document.createElement("input");
+            interactions.type = "checkbox";
+            interactions.id = "interactions";
+            interactions.checked = false;
+            filterGroup.appendChild(interactions);
+        
+            const interactionsLabel = document.createElement("label");
+            interactionsLabel.setAttribute("for", "interactions");
+            interactionsLabel.textContent = "Show Interactions";
+            filterGroup.appendChild(interactionsLabel);
+            
+            interactions.addEventListener("change", (e) => {
+              const cyOverlay = document.getElementById("cy-overlay");
+              if (e.target.checked) {
+                cyOverlay.style.display = "block";
+              } else {
+                cyOverlay.style.display = "none";
+              }
+                initCytoscapeOverlay()
+            });
+        
       }
     }
   }
