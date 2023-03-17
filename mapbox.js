@@ -3,7 +3,7 @@ mapboxgl.accessToken =
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/streets-v12",
-  center: [12.568, 55.6761],
+  center: [12.6074, 55.6921],
   zoom: 14,
   antialias: true,
 });
@@ -178,26 +178,29 @@ function getUniqueFeatures(features, comparatorProperty) {
   return uniqueFeatures;
 }
 
+// Remove duplicate nodes and Edged from Cytoscpe elements formatted JSON
 function removeDuplicateNodesEdges(json) {
   const uniqueNodes = new Map();
   const uniqueEdges = new Set();
-
-  // Remove duplicate nodes
   const nodes = json.nodes.filter((node) => {
     const id = node.data.id;
-    if (uniqueNodes.has(id) || id.includes('BOLD') || id.includes('http')) {
+    if (uniqueNodes.has(id) || id.includes("BOLD") || id.includes("http")) {
       return false;
     }
     uniqueNodes.set(id, true);
     return true;
   });
-
-  // Remove duplicate edges
   const edges = json.edges.filter((edge) => {
     const source = edge.data.source;
     const target = edge.data.target;
     const key = `${source}:${target}`;
-    if (uniqueEdges.has(key) || source.includes('BOLD') || source.includes('http') || target.includes('BOLD') || target.includes('http')) {
+    if (
+      uniqueEdges.has(key) ||
+      source.includes("BOLD") ||
+      source.includes("http") ||
+      target.includes("BOLD") ||
+      target.includes("http")
+    ) {
       return false;
     }
     uniqueEdges.add(key);
@@ -206,43 +209,76 @@ function removeDuplicateNodesEdges(json) {
   return { nodes, edges };
 }
 
+// Fetch JSON data from a URL
+async function getDataJSON(url) {
+  try {
+    let data = await fetch(url);
+    return await data.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// Fetch Distinct Species List For Country
+async function fetchCountrySpeciesList() {
+  const url = "https://lepidoptera.glitch.me/localspecies.json";
+  const data = await getDataJSON(url);
+  return data;
+}
+
+// Fetch Interaction Data for a list of species from GloBi
 async function fetchInteractionData(sourceSpeciesNames) {
+  const nativeSpecies = await fetchCountrySpeciesList();
   let uniqueSourceSpecies = [...new Set(sourceSpeciesNames)];
   const nodes = [];
   const edges = [];
-  const elements = {nodes, edges};
-  const debug = [];
-  // Add all source species to nodes in JSON format? 
+  const elements = { nodes, edges };
+  // Add all source species to nodes in JSON format
   for (let i = 0; i < uniqueSourceSpecies.length; i++) {
-   let source = uniqueSourceSpecies[i];
-   let sourceDecoded = decodeURIComponent(source);
-   elements.nodes.push({ data: { id: source, name: sourceDecoded, level: 0 } });
+    let source = uniqueSourceSpecies[i];
+    let sourceDecoded = decodeURIComponent(source);
+    elements.nodes.push({
+      data: { id: source, name: sourceDecoded, level: 0 },
+    });
   }
-  // Gets all targets and interaction types for each source species 
-  const promises = uniqueSourceSpecies.map(source => {
+  // Gets all targets and interaction types for each source species
+  const promises = uniqueSourceSpecies.map((source) => {
     const url = `https://api.globalbioticinteractions.org/interaction?sourceTaxon=${source}&interactionType=ecologicallyRelatedTo&fields=interaction_type,target_taxon_name`;
     return fetch(url)
-      .then(response => response.json())
-      .then(data => data.data)
-      .catch(error => null); // handle any errors during fetch
+      .then((response) => response.json())
+      .then((data) => data.data)
+      .catch((error) => null); // handle any errors during fetch
   });
   const results = await Promise.allSettled(promises);
   const pushResults = await results
-  .filter(result => result.status === 'fulfilled' && result.value !== null)
-  .map(function(result, index) {
-    debug.push(result.value);
-    for (let j = 0; j < result.value.length; j++) {
-     elements.nodes.push({ data: { id: encodeURIComponent(result.value[j][1]), name: result.value[j][1], level: 1 } });
-     elements.edges.push({ data: { source: uniqueSourceSpecies[index], target: encodeURIComponent(result.value[j][1]), interaction: result.value[j][0] } });
-    }
-    return true;
+    .filter((result) => result.status === "fulfilled" && result.value !== null)
+    .map(function (result, index) {
+      for (let j = 0; j < result.value.length; j++) {
+        if (nativeSpecies.includes(result.value[j][1])) {
+          elements.nodes.push({
+            data: {
+              id: encodeURIComponent(result.value[j][1]),
+              name: result.value[j][1],
+              level: 1,
+            },
+          });
+          elements.edges.push({
+            data: {
+              source: uniqueSourceSpecies[index],
+              target: encodeURIComponent(result.value[j][1]),
+              interaction: result.value[j][0],
+            },
+          });
+        }
+      }
+      return true;
     });
   return elements;
 }
 
 function getSpeciesArray(mapFeatureCollection) {
   const names = [];
-  mapFeatureCollection.forEach(obj => {
+  mapFeatureCollection.forEach((obj) => {
     const name = obj.properties.name;
     names.push(encodeURIComponent(name));
   });
@@ -257,6 +293,8 @@ map.on("load", () => {
   map.addSource("maps-occurences", {
     type: "vector",
     tiles: ["https:api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}.mvt?"],
+    minzoom: 8,
+    maxzoom: 20,
   });
 
   map.addSource("maps-icunThreat", {
@@ -615,16 +653,6 @@ map.on("load", () => {
     return features.flat();
   }
 
-  // Fetch JSON data from a URL
-  async function getDataJSON(url) {
-    try {
-      let data = await fetch(url);
-      return await data.json();
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
   // Return the "count" property of JSON data
   async function renderCount(url) {
     let data = await getDataJSON(url);
@@ -728,217 +756,215 @@ map.on("load", () => {
   }
 
   async function initCytoscapeOverlay() {
-    
-    const renderedMapFeatures = map.queryRenderedFeatures(
-      {layers: [
-        'poi-Animalia', 
-        'poi-Plantae'
-      ]});
-    
+    const renderedMapFeatures = map.queryRenderedFeatures({
+      layers: ["poi-Animalia", "poi-Plantae"],
+    });
+
     const inputSpeciesArray = getSpeciesArray(renderedMapFeatures);
     const interactionData = await fetchInteractionData(inputSpeciesArray);
-    
+
     const style1 = {
-    style: [
-      {
-        selector: "node",
-        style: {
-          "height": 80,
-          "width": 80,
-          "background-fit": "cover",
-          "border-color": "#000",
-          "border-width": 3,
-          "border-opacity": 0.5,
-          "label": `data(name)`,
-          "text-valign": "center",
-          "text-halign": "center"
+      style: [
+        {
+          selector: "node",
+          style: {
+            height: 40,
+            width: 40,
+            "background-fit": "cover",
+            "border-color": "#000",
+            "border-width": 3,
+            "border-opacity": 0.5,
+            label: `data(name)`,
+            "text-valign": "center",
+            "text-halign": "center",
+            "font-size": 7,
+          },
         },
-      },
-      {
-        selector: "edge",
-        style: {
-          "curve-style": "bezier",
-          "width": 9,
-          "label": `data(interaction)`,
-          "target-arrow-shape": 'triangle',
-          "edge-text-rotation": "autorotate",
-          "font-size": 8,
+        {
+          selector: "edge",
+          style: {
+            "curve-style": "bezier",
+            width: 6,
+            label: `data(interaction)`,
+            "target-arrow-shape": "triangle",
+            "edge-text-rotation": "autorotate",
+            "font-size": 5,
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "eatenBy"]',
-        style: {
-          "line-color": "#b30000",
-          "target-arrow-color": "#b30000",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "eatenBy"]',
+          style: {
+            "line-color": "#b30000",
+            "target-arrow-color": "#b30000",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "killedBy"]',
-        style: {
-          "line-color": "#b30000",
-          "target-arrow-color": "#b30000",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "killedBy"]',
+          style: {
+            "line-color": "#b30000",
+            "target-arrow-color": "#b30000",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "preyedUponBy"]',
-        style: {
-          "line-color": "#b30000",
-          "target-arrow-color": "#b30000",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "preyedUponBy"]',
+          style: {
+            "line-color": "#b30000",
+            "target-arrow-color": "#b30000",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hasPathogen"]',
-        style: {
-          "line-color": "#7c1158",
-          "target-arrow-color": "#7c1158",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hasPathogen"]',
+          style: {
+            "line-color": "#7c1158",
+            "target-arrow-color": "#7c1158",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hasParasite"]',
-        style: {
-          "line-color": "#4421af",
-          "target-arrow-color": "#4421af",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hasParasite"]',
+          style: {
+            "line-color": "#4421af",
+            "target-arrow-color": "#4421af",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "parasiteOf"]',
-        style: {
-          "line-color": "#4421af",
-          "target-arrow-color": "#4421af",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "parasiteOf"]',
+          style: {
+            "line-color": "#4421af",
+            "target-arrow-color": "#4421af",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hasEctoparasite"]',
-        style: {
-          "line-color": "#4421af",
-          "target-arrow-color": "#4421af",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hasEctoparasite"]',
+          style: {
+            "line-color": "#4421af",
+            "target-arrow-color": "#4421af",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "endoparasiteOf"]',
-        style: {
-          "line-color": "#4421af",
-          "target-arrow-color": "#4421af",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "endoparasiteOf"]',
+          style: {
+            "line-color": "#4421af",
+            "target-arrow-color": "#4421af",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hasEndoparasite"]',
-        style: {
-          "line-color": "#4421af",
-          "target-arrow-color": "#4421af",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hasEndoparasite"]',
+          style: {
+            "line-color": "#4421af",
+            "target-arrow-color": "#4421af",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hostOf"]',
-        style: {
-          "line-color": "#0d88e6",
-          "target-arrow-color": "#0d88e6",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hostOf"]',
+          style: {
+            "line-color": "#0d88e6",
+            "target-arrow-color": "#0d88e6",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "hasHost"]',
-        style: {
-          "line-color": "#0d88e6",
-          "target-arrow-color": "#0d88e6",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "hasHost"]',
+          style: {
+            "line-color": "#0d88e6",
+            "target-arrow-color": "#0d88e6",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "adjacentTo"]',
-        style: {
-          "line-color": "#00b7c7",
-          "target-arrow-color": "#00b7c7",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "adjacentTo"]',
+          style: {
+            "line-color": "#00b7c7",
+            "target-arrow-color": "#00b7c7",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "interactsWith"]',
-        style: {
-          "line-color": "#86b6ba",
-          "target-arrow-color": "#86b6ba",
+        {
+          selector: 'edge[interaction = "interactsWith"]',
+          style: {
+            "line-color": "#86b6ba",
+            "target-arrow-color": "#86b6ba",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "eats"]',
-        style: {
-          "line-color": "#5ad45a",
-          "target-arrow-color": "#5ad45a",
+        {
+          selector: 'edge[interaction = "eats"]',
+          style: {
+            "line-color": "#5ad45a",
+            "target-arrow-color": "#5ad45a",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "preysOn"]',
-        style: {
-          "line-color": "#5ad45a",
-          "target-arrow-color": "#5ad45a",
+        {
+          selector: 'edge[interaction = "preysOn"]',
+          style: {
+            "line-color": "#5ad45a",
+            "target-arrow-color": "#5ad45a",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "mutualistOf"]',
-        style: {
-          "line-color": "#8be04e",
-          "target-arrow-color": "#8be04e",
+        {
+          selector: 'edge[interaction = "mutualistOf"]',
+          style: {
+            "line-color": "#8be04e",
+            "target-arrow-color": "#8be04e",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "visitedBy"]',
-        style: {
-          "line-color": "#dc0ab4",
-          "target-arrow-color": "#dc0ab4",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "visitedBy"]',
+          style: {
+            "line-color": "#dc0ab4",
+            "target-arrow-color": "#dc0ab4",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "flowersVisitedBy"]',
-        style: {
-          "line-color": "#dc0ab4",
-          "target-arrow-color": "#dc0ab4",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "flowersVisitedBy"]',
+          style: {
+            "line-color": "#dc0ab4",
+            "target-arrow-color": "#dc0ab4",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "visitsFlowersOf"]',
-        style: {
-          "line-color": "#dc0ab4",
-          "target-arrow-color": "#dc0ab4",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "visitsFlowersOf"]',
+          style: {
+            "line-color": "#dc0ab4",
+            "target-arrow-color": "#dc0ab4",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "visits"]',
-        style: {
-          "line-color": "#dc0ab4",
-          "target-arrow-color": "#dc0ab4",
-          "color": "white",
+        {
+          selector: 'edge[interaction = "visits"]',
+          style: {
+            "line-color": "#dc0ab4",
+            "target-arrow-color": "#dc0ab4",
+            color: "white",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "pollinates"]',
-        style: {
-          "line-color": "#e6d800",
-          "target-arrow-color": "#e6d800",
+        {
+          selector: 'edge[interaction = "pollinates"]',
+          style: {
+            "line-color": "#e6d800",
+            "target-arrow-color": "#e6d800",
+          },
         },
-      },
-      {
-        selector: 'edge[interaction = "pollinatedBy"]',
-        style: {
-          "line-color": "#e6d800",
-          "target-arrow-color": "#e6d800",
+        {
+          selector: 'edge[interaction = "pollinatedBy"]',
+          style: {
+            "line-color": "#e6d800",
+            "target-arrow-color": "#e6d800",
+          },
         },
-      },
-    ],
-  };
-    
-    const elements = removeDuplicateNodesEdges(interactionData)
+      ],
+    };
+
+    const elements = removeDuplicateNodesEdges(interactionData);
     //document.getElementById("debug").innerHTML = `<p> ResponseFTWW: ${JSON.stringify(elements)} </p>`
     var cy = cytoscape({
       container: document.getElementById("cy-overlay"),
@@ -947,21 +973,39 @@ map.on("load", () => {
       style: style1.style,
       elements: elements,
       layout: {
-        name: "grid"
+        
+        name: "concentric",
+        concentric: function( node ) {
+        return node.degree();
+        },
+        
+        /*
+        name: "cose",
+        animate: false,
+        componentSpacing: 280,
+        nestingFactor: 10,
+        idealEdgeLength: function (edge) {
+          return 64;
+        },
+        edgeElasticity: function (edge) {
+          return 64;
+        },
+        gravity: 0.1,
+        nodeOverlap: 8,
+        */
+        
+        
       },
     });
-    
-    /*
+
     cy.on('tap', 'node', async function (e) {
       const node = e.target;
       const nodeId = node.id();
-      // Open a new Portrait for Tapped Node
       const portraitURL = "species-interactions.html?input=" + nodeId;
       window.open(portraitURL, '_blank');
     })
-    */
-  }  
-  
+  }
+
   // Update Polygon Search Status
   async function updateSearch(e) {
     if (e.type == "draw.delete") {
@@ -998,7 +1042,7 @@ map.on("load", () => {
               "circle-stroke-color": "white",
             },
           });
-        } 
+        }
 
         draw.deleteAll();
         $(".lds-grid").hide();
@@ -1042,33 +1086,34 @@ map.on("load", () => {
                 e.target.checked ? "visible" : "none"
               );
             });
-
           }
         }
-        
+
         // Add Button to View All Interactions Network
-            const interactions = document.createElement("input");
-            interactions.type = "checkbox";
-            interactions.id = "interactions";
-            interactions.checked = false;
-            filterGroup.appendChild(interactions);
+        //if (!filterGroup.contains("interactions")) {
+          const interactions = document.createElement("input");
+          interactions.type = "checkbox";
+          interactions.id = "interactions";
+          interactions.checked = false;
+          filterGroup.appendChild(interactions);
+
+          const interactionsLabel = document.createElement("label");
+          interactionsLabel.setAttribute("for", "interactions");
+          interactionsLabel.textContent = "Show Interactions";
+          filterGroup.appendChild(interactionsLabel);
+
+          interactions.addEventListener("change", (e) => {
+            const cyOverlay = document.getElementById("cy-overlay");
+            if (e.target.checked) {
+              cyOverlay.style.display = "block";
+            } else {
+              cyOverlay.style.display = "none";
+            }
+            initCytoscapeOverlay();
+          });
+        }
         
-            const interactionsLabel = document.createElement("label");
-            interactionsLabel.setAttribute("for", "interactions");
-            interactionsLabel.textContent = "Show Interactions";
-            filterGroup.appendChild(interactionsLabel);
-            
-            interactions.addEventListener("change", (e) => {
-              const cyOverlay = document.getElementById("cy-overlay");
-              if (e.target.checked) {
-                cyOverlay.style.display = "block";
-              } else {
-                cyOverlay.style.display = "none";
-              }
-                initCytoscapeOverlay()
-            });
-        
-      }
+      //}
     }
   }
 });
