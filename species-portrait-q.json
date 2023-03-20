@@ -1,0 +1,11 @@
+[
+  "In a series of bullet points, can you tell me what research and other scientific sources tell us about the behavior of the animal species {species.name}, also known as the {species.commonName}",
+  "Can you tell me what research and other scientific sources tell us about the day-to-day habits of {species.name}, also known as the {species.commonName},
+  "Can you tell me what research and other scientific sources tell us about the nesting habits of {species.name}, also known as the {species.commonName},
+  "Can you tell me what research and other scientific sources tell us about the breeding habits of {species.name}, also known as the {species.commonName},
+  "In a series of bullet points, can you tell me what research and other scientific sources tell us about the habitat requirements of {species.name}, also known as the {species.commonName}",
+  "What are people's general perception of {species.name}, aka. {species.commonName} in {species.country}? Are these perecpetions generally positive, negative, or mixed? Why?",
+  "Do {species.name}, also known as the {species.commonName} have cultural siginificance in {species.country} or in any other countires, cultures, or religions?",
+  "In a series of bullet points, can you list any documented benifits of having {species.name} also known as the {species.commonName} around humans, especially in cities?",
+  "If I am designing a {project.type}, what design considerations should I make if I want to have a positive impact on an animal species like {species.name}, also known as the {species.commonName}"
+]
