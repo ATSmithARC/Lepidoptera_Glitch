@@ -1,45 +1,37 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap");
-
 :root {
   --primary-color: #3a4052;
 }
-
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
-
 body {
   font-family: "Open Sans", sans-serif;
   line-height: 1.5;
 }
-
 a {
   text-decoration: none;
   color: var(--primary-color);
 }
-
 h1 {
   font-weight: 300;
   font-size: 60px;
   line-height: 1.2;
   margin-bottom: 15px;
 }
-
 h2 {
   font-weight: 30;
   font-size: 12px;
   line-height: 1.2;
   margin-bottom: 5px;
 }
-
 /* Add a black background color to the top navigation */
 .topnav {
   background-color: #333;
   overflow: hidden;
 }
-
 /* Style the links inside the navigation bar */
 .topnav a {
   float: left;
@@ -50,24 +42,20 @@ h2 {
   text-decoration: none;
   font-size: 17px;
 }
-
 /* Add an active class to highlight the current page */
 .active {
   background-color: #04aa6d;
   color: white;
 }
-
 /* Hide the link that should open and close the topnav on small screens */
 .topnav .icon {
   display: none;
 }
-
 /* Dropdown container - needed to position the dropdown content */
 .dropdown {
   float: left;
   overflow: hidden;
 }
-
 /* Style the dropdown button to fit inside the topnav */
 .dropdown .dropbtn {
   font-size: 17px;
@@ -79,7 +67,6 @@ h2 {
   font-family: inherit;
   margin: 0;
 }
-
 /* Style the dropdown content (hidden by default) */
 .dropdown-content {
   display: none;
@@ -89,7 +76,6 @@ h2 {
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 150;
 }
-
 /* Style the links inside the dropdown */
 .dropdown-content a {
   float: none;
@@ -99,25 +85,21 @@ h2 {
   display: block;
   text-align: left;
 }
-
 /* Add a dark background on topnav links and the dropdown button on hover */
 .topnav a:hover,
 .dropdown:hover .dropbtn {
   background-color: #555;
   color: white;
 }
-
 /* Add a grey background to dropdown links on hover */
 .dropdown-content a:hover {
   background-color: #ddd;
   color: black;
 }
-
 /* Show the dropdown menu when the user moves the mouse over the dropdown button */
 .dropdown:hover .dropdown-content {
   display: block;
 }
-
 /* When the screen is less than 600 pixels wide, hide all links, except for the first one ("Home"). Show the link that contains should open and close the topnav (.icon) */
 @media screen and (max-width: 600px) {
   .topnav a:not(:first-child),
@@ -129,7 +111,6 @@ h2 {
     display: block;
   }
 }
-
 /* The "responsive" class is added to the topnav with JavaScript when the user clicks on the icon. This class makes the topnav look good on small screens (display the links vertically instead of horizontally) */
 @media screen and (max-width: 600px) {
   .topnav.responsive {
@@ -157,7 +138,6 @@ h2 {
     text-align: left;
   }
 }
-
 .showcase {
   position: relative;
   height: 100vh;
@@ -169,7 +149,6 @@ h2 {
   padding: 0 20px;
   color: white;
 }
-
 .video-container {
   position: absolute;
   top: 0;
@@ -181,7 +160,6 @@ h2 {
     url("https://cdn.glitch.global/83e86ffc-5495-4dc6-a988-f4cfcfb14b31/splash-image.jpg?v=1672846058132")
     no-repeat center center/cover;
 }
-
 .video-container video {
   min-width: 100%;
   min-height: 100%;
@@ -191,7 +169,6 @@ h2 {
   left: 50%;
   transform: translate(-50%, -50%);
 }
-
 .video-container:after {
   content: "";
   position: absolute;
@@ -201,7 +178,6 @@ h2 {
   height: 100%;
   background: rgba(0, 0, 0, 0.7);
 }
-
 .btn {
   display: inline-block;
   padding: 10px 30px;
@@ -212,35 +188,28 @@ h2 {
   margin-top: 25px;
   opacity: 0.8;
 }
-
 .btn:hover {
   transform: scale(0.98);
 }
-
 #getstarted {
   padding: 40px;
   text-align: center;
 }
-
 #getstarted p {
   font-size: 1.2rem;
   max-width: 600px;
   margin: auto;
 }
-
 #getstarted h2 {
   margin: 30px 0;
   color: var(--primary-color);
 }
-
 .social a {
   margin: 0 5px;
 }
-
 .content {
   z-index: 100;
 }
-
 #map {
   position: absolute;
   height: 100%;
@@ -248,7 +217,6 @@ h2 {
   z-index: 25;
   margin: 0px;
 }
-
 .map-overlay {
   position: relative;
   width: 90%;
@@ -262,16 +230,13 @@ h2 {
   z-index: 360;
   
 }
-
 .map-overlay fieldset {
   position: relative;
   z-index: 452;
-  border: #ddd;
-  
+  border: #ddd; 
   padding: 5px;
   margin: 0;
 }
-
 .map-overlay input {
   display: block;
   border: none;
@@ -281,39 +246,32 @@ h2 {
   margin: 0;
   box-sizing: border-box;
 }
-
 .map-overlay .listing {
   overflow: auto;
   max-height: 100%;
 }
-
 .map-overlay .listing > * {
   display: block;
   padding: 5px 10px;
   margin: 0;
 }
-
 .map-overlay .listing a {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
   color: #404;
   text-decoration: none;
   font-size: 11px;
 }
-
 .map-overlay .listing a:last-child {
   border: none;
 }
-
 .map-overlay .listing a:hover {
   background: #f0f0f0;
 }
-
 p {
   font-family: "Open Sans";
   margin: 0;
   font-size: 13px;
 }
-
 .filter-group {
   font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
   font-weight: 600;
@@ -325,20 +283,16 @@ p {
   color: #fff;
   z-index: 351;
 }
-
 .filter-group input[type="checkbox"]:first-child + label {
   border-radius: 3px 3px 0 0;
 }
-
 .filter-group label:last-child {
   border-radius: 0 0 3px 3px;
   border: none;
 }
-
 .filter-group input[type="checkbox"] {
   display: none;
 }
-
 .filter-group input[type="checkbox"] + label {
   background-color: #04aa6d;
   display: block;
@@ -349,29 +303,73 @@ p {
   border-width: 1px;
   color: #000000;
 }
-
 .filter-group input[type="checkbox"] + label {
   background-color: rgba(255, 255, 255, 0.9);
   text-transform: capitalize;
   color: #000000;
 }
-
 .filter-group input[type="checkbox"] + label:hover {
   background-color: rgba(130, 213, 182, 0.9);
   color: #000000;
 }
-
 .filter-group input[type="checkbox"]:checked + label {
   background-color: rgba(4, 170, 109, 0.9);
   color: #000000;
 }
-
 .filter-group input[type="checkbox"]:checked + label:before {
   content: "✔";
   margin-right: 5px;
   color: #000000;
 }
-
+.function-group {
+  font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
+  font-weight: 600;
+  position: absolute;
+  top: 55%;
+  left: 10px;
+  border-radius: 3px;
+  width: 90%;
+  color: #fff;
+  z-index: 351;
+}
+.function-group input[type="checkbox"]:first-child + label {
+  border-radius: 3px 3px 0 0;
+}
+.function-group label:last-child {
+  border-radius: 0 0 3px 3px;
+  border: none;
+}
+.function-group input[type="checkbox"] {
+  display: none;
+}
+.function-group input[type="checkbox"] + label {
+  background-color: #04aa6d;
+  display: block;
+  cursor: pointer;
+  padding: 5px;
+  border-style: dotted;
+  border-color: rgba(0, 0, 0, 0.1);
+  border-width: 1px;
+  color: #000000;
+}
+.function-group input[type="checkbox"] + label {
+  background-color: rgba(255, 245, 245, 0.9);
+  text-transform: capitalize;
+  color: #000000;
+}
+.function-group input[type="checkbox"] + label:hover {
+  background-color: rgba(130, 213, 182, 0.9);
+  color: #000000;
+}
+.function-group input[type="checkbox"]:checked + label {
+  background-color: rgba(4, 170, 109, 0.9);
+  color: #000000;
+}
+.function-group input[type="checkbox"]:checked + label:before {
+  content: "✔";
+  margin-right: 5px;
+  color: #000000;
+}
 .lds-grid {
   display: inline-block;
   position: absolute;
@@ -395,7 +393,6 @@ p {
   background: #04aa6d;
   animation: lds-grid 1.2s linear infinite;
 }
-
 .lds-grid div:nth-child(1) {
   top: 8px;
   left: 8px;
@@ -450,7 +447,6 @@ p {
     opacity: 0.5;
   }
 }
-
 /* The sidebar menu */
 .sidebar {
   height: 100%; /* 100% Full-height */
@@ -466,7 +462,6 @@ p {
   transition: 0.5s; /* 0.5 second transition effect to slide in the sidebar */
   overflow: clip;
 }
-
 /* The sidebar links */
 .sidebar h2 {
   padding: 8px 8px 8px 32px;
@@ -476,7 +471,6 @@ p {
   display: block;
   transition: 0.3s;
 }
-
 /* The sidebar links */
 .sidebar a {
   padding: 8px 8px 8px 32px;
@@ -486,12 +480,10 @@ p {
   display: block;
   transition: 0.3s;
 }
-
 /* When you mouse over the navigation links, change their color */
 .sidebar a:hover {
   color: #f1f1f1;
 }
-
 /* Position and style the close button (top right corner) */
 .sidebar .closebtn {
   position: absolute;
@@ -501,7 +493,6 @@ p {
   margin-left: 50px;
   margin-top: 3px;
 }
-
 /* The button used to open the sidebar */
 .openbtn {
   border-top-right-radius: 3px;
@@ -517,16 +508,13 @@ p {
   padding: 10px 15px;
   border: none;
 }
-
 .openbtn:hover {
   background-color: rgba(255, 255, 255, 1);
 }
-
 /* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 #main {
   transition: margin-left 0.5s; /* If you want a transition effect */
 }
-
 /* On smaller screens, where height is less than 450px, change the style of the sidenav (less padding and a smaller font size) */
 @media screen and (max-height: 450px) {
   .sidebar {
@@ -536,7 +524,6 @@ p {
     font-size: 18px;
   }
 }
-
 .box {
   width: 20%;
   margin: 0 auto;
@@ -547,7 +534,6 @@ p {
   background-clip: padding-box;
   text-align: center;
 }
-
 .button {
   font-size: 1em;
   padding: 10px;
@@ -558,11 +544,9 @@ p {
   cursor: pointer;
   transition: all 0.3s ease-out;
 }
-
 .button:hover {
   background: orange;
 }
-
 .overlay {
   position: absolute;
   top: 0;
@@ -575,13 +559,11 @@ p {
   opacity: 1;
   z-index: 4000;
 }
-
 .overlay:target {
   visibility: hidden;
   opacity: 0;
   display: none;
 }
-
 .how-to {
   position: relative;
   top: 20%;
@@ -597,7 +579,6 @@ p {
   line-height: 14px;
   color: var(--primary-color);
 }
-
 .how-to .close {
   position: absolute;
   top: 20px;
@@ -609,50 +590,41 @@ p {
   color: var(--primary-color);
   z-index: 3998;
 }
-
 .how-to .close:hover {
   color: #04aa6d;
 }
-
 .how-to .pupupcontent {
   max-height: 30%;
   overflow: auto;
 }
-
 .how-to h2 { 
   margin-top: 0; 
   color: var(--primary-color); 
   font-family: Tahoma, Arial, sans-serif; 
   font-size: 30px;
 }
-
 .how-to a {
    color: #04aa6d;
    text-decoration: underline;
 }
-
 .mapboxgl-popup {
   width: auto;
   max-width: 600px;
   height: 300px;
 }
-
 .mapboxgl-popup .grid-container {
     display: grid;
     grid-template-columns: 80px auto;
     overflow: hidden;
 }
-
 .mapboxgl-popup .grid-container .grid-child-right {
     padding: 10px;
 }
-
 .mapboxgl-popup-content {
   border-radius: 5px;
   padding: 0px;
   margin: 0px;
-}
-  
+} 
 .mapboxgl-popup-content img {
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
@@ -661,30 +633,24 @@ p {
   width: 100%;
   height: 100%;
 }
-
 .mapboxgl-popup-content img:hover {
   box-shadow: 0 0 2px 1px rgba(0, 140, 186, 0.5);
 }
-
 .mapboxgl-popup-content h1 {
   color: grey;
   font: 16px/16px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
   margin-bottom: 5px;
 }
-
 .mapboxgl-popup-content h1:hover {
   text-decoration: underline;
 }
-
 .mapboxgl-popup-content p {
   color: grey;
   font: 8px/10px 'Helvetica Neue', Arial, Helvetica, sans-serif;
 }
-
 .mapboxgl-popup-content p:hover {
   text-decoration: underline;
 }
-
 .interaction-button a {
   color: white;
   font: 10px/10px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
@@ -699,12 +665,10 @@ p {
   cursor: pointer;
   transition: all 0.3s ease-out;
 }
-
 .portrait-button a {
   color: white;
   font: 10px/10px 'Helvetica Neue Bold', Arial, Helvetica, sans-serif;
 }
-
 .portrait-button {
   text-align: center;
   font-size: 1em;
@@ -715,7 +679,6 @@ p {
   cursor: pointer;
   transition: all 0.3s ease-out;
 }
-
 #cy {
   height: 100%;
   width: 100%;
@@ -723,7 +686,6 @@ p {
   left: 0;
   top: 50;
 }
-
 #cy-overlay {
   position: relative; 
   display: none;
@@ -736,7 +698,6 @@ p {
   background-color: rgba(255,255,255,0.5);
   z-index: 4000;
 }
-
 #debug {
   position: absolute;
   display: block;
@@ -748,4 +709,16 @@ p {
 }
 
 
-
+#species-portrait-img { 
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  
+}
+#species-portrait-img img { 
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: fill;
+}

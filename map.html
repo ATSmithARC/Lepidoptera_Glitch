@@ -57,6 +57,7 @@
         </div>
       </div>
       <a href="species-interactions.html">Interactions</a>
+      <a href="species-portrait.html">Portrait</a>
       <a href="about.html">About</a>
       <a href="javascript:void(0);" class="icon" onclick="myFunction()"
         >&#9776;</a
@@ -82,18 +83,23 @@
           <a class="close" href="#how-to">×</a>
           <div class="popupcontent">
             Green dots indicate
-            <a href="https://www.gbif.org/dataset/search?type=OCCURRENCE"
+            <a href="https://www.gbif.org/dataset-classes#occurrences"
               >Species Occurences.</a
             >
             <br />
-            To access them: <br />
+            Red dots indicate
+            <a style="color:red;text-decoration: underline;"href="https://www.iucnredlist.org/assessment/process"
+              >Threatened Species</a
+            ><br/>
+            <br />
+            To get occurence details: <br />
             <br />
             1.) Select the Polygon tool in the upper-right corner. <br />
             <br />
             2.) Click the map to begin drawing a search permieter using points.
             <br />
             <br />
-            3.) Double-click to place the final point, and begin searching.
+            3.) Double-click to place the final point, and retrieve results.
           </div>
         </div>
       </div>
@@ -113,9 +119,9 @@
 
     <div id="mySidebar" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"><</a>
-      <h2>Filters</h2>
+      <h2>Tools</h2>
       <nav id="filter-group" class="filter-group"></nav>
-
+      <nav id="function-group" class="function-group"></nav>
       <div class="map-overlay">
         <fieldset>
           <input

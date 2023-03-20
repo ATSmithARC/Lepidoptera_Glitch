@@ -4,10 +4,10 @@ var inputSpeciesName = decodeURIComponent(
 );
 
 // Get HTML Elements as variables
-const output = document.getElementById("my-output");
+const header = document.getElementById("interaction-header");
 const debug = document.getElementById("debug-text");
 
-output.innerHTML = `<h3>   ${inputSpeciesName}</h3>`;
+header.innerHTML = `<h3>${inputSpeciesName} Interactions</h3>`;
 
 // Fetch JSON data from a URL
 async function getDataJSON(url) {
@@ -47,7 +47,7 @@ async function convertJSON(json) {
         edges.push({
           data: { source: source, target: target, interaction: interaction },
         });
-      }
+      }//if native species
     }
   }
   const elements = { nodes, edges };
