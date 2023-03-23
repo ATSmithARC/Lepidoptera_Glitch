@@ -128,9 +128,11 @@ let airports = [];
 // Returns a (Species Occurence) DOM Popup when invoked
     function poiPopup(f) {
         var input = f.properties.name;
+        var taxonkey = f.properties.key;
         var encodedInput = encodeURIComponent(input);
-        var interactionURL = "species-interactions.html?input=" + encodedInput;
-        var portraitURL = "species-portrait.html?input=" + encodedInput;
+        var encodedTaxonKey = encodeURIComponent(taxonkey)
+        var interactionURL = "species-interactions.html?name=" + encodedInput;
+        var portraitURL = "species-portrait.html?key=" + encodedTaxonKey;
         // Center the map on popup
         map.flyTo({ center: f.geometry.coordinates });
         popup
