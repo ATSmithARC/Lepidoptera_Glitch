@@ -1,0 +1,199 @@
+{
+  "style": [
+    {
+      "selector": "node",
+      "style": {
+        "height": 80,
+        "width": 80,
+        "background-fit": "cover",
+        "border-color": "#000",
+        "border-width": 3,
+        "border-opacity": 0.5,
+        "label": "data(name)",
+        "text-valign": "center",
+        "text-halign": "center"
+      }
+    },
+    {
+      "selector": "edge",
+      "style": {
+        "curve-style": "bezier",
+        "width": 9,
+        "label": "data(interaction)",
+        "target-arrow-shape": "triangle",
+        "edge-text-rotation": "autorotate",
+        "font-size": 8
+      }
+    },
+    {
+      "selector": "edge[interaction = \"eatenBy\"]",
+      "style": {
+        "line-color": "#b30000",
+        "target-arrow-color": "#b30000",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"killedBy\"]",
+      "style": {
+        "line-color": "#b30000",
+        "target-arrow-color": "#b30000",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"preyedUponBy\"]",
+      "style": {
+        "line-color": "#b30000",
+        "target-arrow-color": "#b30000",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hasPathogen\"]",
+      "style": {
+        "line-color": "#7c1158",
+        "target-arrow-color": "#7c1158",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hasParasite\"]",
+      "style": {
+        "line-color": "#4421af",
+        "target-arrow-color": "#4421af",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"parasiteOf\"]",
+      "style": {
+        "line-color": "#4421af",
+        "target-arrow-color": "#4421af",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hasEctoparasite\"]",
+      "style": {
+        "line-color": "#4421af",
+        "target-arrow-color": "#4421af",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"endoparasiteOf\"]",
+      "style": {
+        "line-color": "#4421af",
+        "target-arrow-color": "#4421af",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hasEndoparasite\"]",
+      "style": {
+        "line-color": "#4421af",
+        "target-arrow-color": "#4421af",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hostOf\"]",
+      "style": {
+        "line-color": "#0d88e6",
+        "target-arrow-color": "#0d88e6",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"hasHost\"]",
+      "style": {
+        "line-color": "#0d88e6",
+        "target-arrow-color": "#0d88e6",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"adjacentTo\"]",
+      "style": {
+        "line-color": "#00b7c7",
+        "target-arrow-color": "#00b7c7",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"interactsWith\"]",
+      "style": {
+        "line-color": "#86b6ba",
+        "target-arrow-color": "#86b6ba"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"eats\"]",
+      "style": {
+        "line-color": "#5ad45a",
+        "target-arrow-color": "#5ad45a"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"preysOn\"]",
+      "style": {
+        "line-color": "#5ad45a",
+        "target-arrow-color": "#5ad45a"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"mutualistOf\"]",
+      "style": {
+        "line-color": "#8be04e",
+        "target-arrow-color": "#8be04e"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"visitedBy\"]",
+      "style": {
+        "line-color": "#dc0ab4",
+        "target-arrow-color": "#dc0ab4",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"flowersVisitedBy\"]",
+      "style": {
+        "line-color": "#dc0ab4",
+        "target-arrow-color": "#dc0ab4",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"visitsFlowersOf\"]",
+      "style": {
+        "line-color": "#dc0ab4",
+        "target-arrow-color": "#dc0ab4",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"visits\"]",
+      "style": {
+        "line-color": "#dc0ab4",
+        "target-arrow-color": "#dc0ab4",
+        "color": "white"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"pollinates\"]",
+      "style": {
+        "line-color": "#e6d800",
+        "target-arrow-color": "#e6d800"
+      }
+    },
+    {
+      "selector": "edge[interaction = \"pollinatedBy\"]",
+      "style": {
+        "line-color": "#e6d800",
+        "target-arrow-color": "#e6d800"
+      }
+    }
+  ]
+}

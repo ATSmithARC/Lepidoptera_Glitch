@@ -11,18 +11,12 @@
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
-    <style id="__________cytoscape_stylesheet">
-      .__________cytoscape_container {
-        position: relative;
-      }
-    </style>
     <link rel="stylesheet" href="style.css" />
     <script
       src="https://code.jquery.com/jquery-2.2.1.min.js"
       integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
       crossorigin="anonymous"
     ></script>
-
     <script>
       if (location.protocol != "https:") {
         location.href =
@@ -30,6 +24,7 @@
           window.location.href.substring(window.location.protocol.length);
       }
     </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/2.0.5/jsts.js" type="text/javascript"></script>
     <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
     <script src="https://unpkg.com/mapbox-gl-draw-waypoint@1.0.3/dist/mapbox-gl-draw-waypoint.min.js"></script>
     <script src="nav-ui.js"></script>
@@ -82,14 +77,14 @@
           <h2>About Map:</h2>
           <a class="close" href="#how-to">×</a>
           <div class="popupcontent">
-            Green dots indicate
+            Green dots indicate 
             <a href="https://www.gbif.org/dataset-classes#occurrences"
-              >Species Occurences.</a
+              >Species Occurences</a
             >
             <br />
             Red dots indicate
             <a style="color:red;text-decoration: underline;"href="https://www.iucnredlist.org/assessment/process"
-              >Threatened Species</a
+              >EU Threatened Species</a
             ><br/>
             <br />
             To get occurence details: <br />
@@ -122,17 +117,17 @@
       <h2>Tools</h2>
       <nav id="filter-group" class="filter-group"></nav>
       <nav id="function-group" class="function-group"></nav>
-      <div class="map-overlay">
-        <fieldset>
+      <div class="result-filter">
           <input
             id="feature-filter"
             type="text"
             placeholder="Filter visible results by name..."
           />
-        </fieldset>
         <div id="feature-listing" class="listing"></div>
       </div>
     </div>
+    
+    <script type="text/javascript" src="functions.js"></script>
     <script type="text/javascript" src="mapbox.js"></script>
   </body>
 </html>
