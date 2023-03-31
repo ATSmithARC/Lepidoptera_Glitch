@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Format Questions</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+     .required:after {
+     content:"*";
+     color:red;
+     }
+    </style>
+    <script src="nav-ui.js"></script>
+    <script>
+      if (location.protocol != "https:") {
+        location.href =
+          "https:" +
+          window.location.href.substring(window.location.protocol.length);
+      }
+    </script>
+  </head>
+  <body>
+    <section class="navbar">
+      <div class="topnav" id="myTopnav">
+        <a href="index.html" class="active">Home</a>
+        <a href="howto.html">How to</a>
+        <a href="login.html">Log in</a>
+        <div class="dropdown">
+          <button class="dropbtn">
+            Maps
+            <i class="fa fa-caret-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <a href="map.html">Species Occurence</a>
+            <a href="map.html">Environment</a>
+            <a href="map.html">Terrain</a>
+          </div>
+        </div>
+        <a href="about.html">About</a>
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()"
+          >&#9776;</a
+        >
+      </div>
+    </section>
+
+    <h1>Species Narrative</h1>
+    <p>A narrative is structured text information about a speices.</p>
+    <p>Fill out the form below to generate a narrative JSON string.</p>
+    <p>You can Copy and Paste that string into a new .json file.</p>
+    <p>You can then commit that .json file to the repository below.</p>
+    <p>The file name should be the GBIF taxon ID for that species.</p><br />
+    <a href="https://github.com/ATSmithARC/Lepidoptera_Core/tree/main/data/species-portraits/narratives" style="text-decoration:underline;">Lepidoptera/Narratives</a>
+    <br /><br />
+      <label for="speciesName" class="required">Scientific Name:</label><br />
+      <input type="text" id="speciesName" name="speciesName"/><br />
+      <label for="speciesVernacularName" class="required">Vernacular Name:</label><br />
+      <input type="text" id="speciesVernacularName" name="speciesVernacularName" required/><br />
+      <label for="country" class="required">Country:</label><br />
+      <input type="text" id="country" name="country" /><br />
+      <button type="button" onclick="formatQuestionsAnimal()">Generate Animal Questions</button>
+      
+      <br />
+      <br />
+    
+    
+    
+    <p id="q0"></p>
+    <div class="answer-fp" id="a0"></div><br />
+    <p id="q1"></p>
+    <div class="answer-fp" id="a1"></div><br />
+    <p id="q2"></p>
+    <div class="answer-fp" id="a2"></div><br />
+    <p id="q3"></p>
+    <div class="answer-fp" id="a3"></div><br />
+    <p id="q4"></p>
+    <div class="answer-fp" id="a4"></div><br />
+    <p id="q5"></p>
+    <div class="answer-fp" id="a5"></div><br />
+    <p id="q6"></p>
+    <div class="answer-fp" id="a6"></div><br />
+    <p id="q7"></p>
+    <div class="answer-fp" id="a7"></div><br />
+    <p id="q8"></p>
+    <div class="answer-fp" id="a8"></div><br />
+    <button id="button-hidden" type="button" onclick="formatAnswerstoJSON()">Submit Answers</button><br />
+    <div id="sp-json-container">
+        <pre id="sp-json"></pre>
+    </div>
+     <div id="debug-text"></div><br />
+    <script type="text/javascript" src="format-questions.js"></script>
+  </body>
+</html>

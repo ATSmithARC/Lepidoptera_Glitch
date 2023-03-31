@@ -2,11 +2,13 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui">
+    <meta
+      name="viewport"
+      content="user-scalable=no, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, minimal-ui"
+    />
     <title>Species Portrait</title>
     <link rel="stylesheet" href="style.css" />
     <script src="nav-ui.js"></script>
-
     <script>
       if (location.protocol != "https:") {
         location.href =
@@ -14,11 +16,20 @@
           window.location.href.substring(window.location.protocol.length);
       }
     </script>
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
     <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
     <script src="chrome-extension://lnkdbjbjpnpjeciipoaflmpcddinpjjp/mutationObserver.js"></script>
     <script src="chrome-extension://lnkdbjbjpnpjeciipoaflmpcddinpjjp/mytube.js"></script>
-    <mytubeelement id="myTubeRelayElementToPage" event="preferencesUpdated" data="{&quot;bundle&quot;:{&quot;label_delimitor&quot;:&quot;:&quot;,&quot;percentage&quot;:&quot;%&quot;,&quot;smart_buffer&quot;:&quot;Smart Buffer&quot;,&quot;start_playing_when_buffered&quot;:&quot;Start playing when buffered&quot;,&quot;sound&quot;:&quot;Sound&quot;,&quot;desktop_notification&quot;:&quot;Desktop Notification&quot;,&quot;continuation_on_next_line&quot;:&quot;-&quot;,&quot;loop&quot;:&quot;Loop&quot;,&quot;only_notify&quot;:&quot;Only Notify&quot;,&quot;estimated_time&quot;:&quot;Estimated Time&quot;,&quot;global_preferences&quot;:&quot;Global Preferences&quot;,&quot;no_notification_supported_on_your_browser&quot;:&quot;No notification style supported on your browser version&quot;,&quot;video_buffered&quot;:&quot;Video Buffered&quot;,&quot;buffered&quot;:&quot;Buffered&quot;,&quot;hyphen&quot;:&quot;-&quot;,&quot;buffered_message&quot;:&quot;The video has been buffered as requested and is ready to play.&quot;,&quot;not_supported&quot;:&quot;Not Supported&quot;,&quot;on&quot;:&quot;On&quot;,&quot;off&quot;:&quot;Off&quot;,&quot;click_to_enable_for_this_site&quot;:&quot;Click to enable for this site&quot;,&quot;desktop_notification_denied&quot;:&quot;You have denied permission for desktop notification for this site&quot;,&quot;notification_status_delimitor&quot;:&quot;;&quot;,&quot;error&quot;:&quot;Error&quot;,&quot;adblock_interferance_message&quot;:&quot;Adblock (or similar extension) is known to interfere with SmartVideo. Please add this url to adblock whitelist.&quot;,&quot;calculating&quot;:&quot;Calculating&quot;,&quot;waiting&quot;:&quot;Waiting&quot;,&quot;will_start_buffering_when_initialized&quot;:&quot;Will start buffering when initialized&quot;,&quot;will_start_playing_when_initialized&quot;:&quot;Will start playing when initialized&quot;,&quot;completed&quot;:&quot;Completed&quot;,&quot;buffering_stalled&quot;:&quot;Buffering is stalled. Will stop.&quot;,&quot;stopped&quot;:&quot;Stopped&quot;,&quot;hr&quot;:&quot;Hr&quot;,&quot;min&quot;:&quot;Min&quot;,&quot;sec&quot;:&quot;Sec&quot;,&quot;any_moment&quot;:&quot;Any Moment&quot;,&quot;popup_donate_to&quot;:&quot;Donate to&quot;,&quot;extension_id&quot;:&quot;lnkdbjbjpnpjeciipoaflmpcddinpjjp&quot;},&quot;prefs&quot;:{&quot;desktopNotification&quot;:true,&quot;soundNotification&quot;:true,&quot;logLevel&quot;:0,&quot;enable&quot;:true,&quot;loop&quot;:false,&quot;hidePopup&quot;:false,&quot;autoPlay&quot;:false,&quot;autoBuffer&quot;:true,&quot;autoPlayOnBuffer&quot;:false,&quot;autoPlayOnBufferPercentage&quot;:42,&quot;autoPlayOnSmartBuffer&quot;:true,&quot;quality&quot;:&quot;default&quot;,&quot;fshd&quot;:false,&quot;onlyNotification&quot;:false,&quot;enableFullScreen&quot;:true,&quot;saveBandwidth&quot;:false,&quot;hideAnnotations&quot;:false,&quot;turnOffPagedBuffering&quot;:true}}"></mytubeelement>
-    <mytubeelement id="myTubeRelayElementToTab" event="relayPrefs" data="{&quot;loadBundle&quot;:true}"></mytubeelement>
+    <script
+      src="https://code.jquery.com/jquery-2.2.1.min.js"
+      integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <section class="navbar">
@@ -37,19 +48,174 @@
             <a href="map.html">Terrain</a>
           </div>
         </div>
-        <a href="species-interactions.html">Interactions</a>
-        <a href="species-portrait.html" class="active">Portrait</a>
         <a href="about.html">About</a>
         <a href="javascript:void(0);" class="icon" onclick="myFunction()"
           >&#9776;</a
         >
       </div>
     </section>
-    <div id="species-portrait-container">
-      <p>
-        test
-      </p>
+    <div class="sp-search-container">
+      <input
+        id="sp-searchbar"
+        type="text"
+        placeholder="Species Scientific Name..."
+      />
+      <div id="feature-listing" class="listing"></div>
     </div>
+    <div id="sp-poster"></div>
+    <div id="species-portrait-container">
+      <h1 id="vernacularName"></h1>
+      <h2 id="scientificName"></h2>
+      <h3>RANGE</h3>
+      <div id="sp-range">
+        <div id="sp-map"></div>
+      </div>
+      <h3>APPEARANCE</h3>
+      <div id="sp-appearance">
+        <div id="sp-gallery"></div>
+        <div id="sp-button-container">
+          <div id="sp-button">
+            <a href="#getstarted" class="btn">See More</a>
+          </div>
+        </div>
+      </div>
+      <h3>TAXONOMY</h3>
+      <div id="sp-taxonomy">
+        <div class="sp-grid-container">
+          <div class="sp-grid">
+            <div class="grid-left">
+              <p>Kingdom:</p>
+              <p>Phylum:</p>
+              <p>Class:</p>
+              <p>Order:</p>
+              <p>Family:</p>
+              <p>Genus:</p>
+              <p>Species:</p>
+              <p>Common Name:</p>
+            </div>
+            <div class="grid-right">
+              <p id="sp-kingdom"></p>
+              <p id="sp-phylum"></p>
+              <p id="sp-class"></p>
+              <p id="sp-order"></p>
+              <p id="sp-family"></p>
+              <p id="sp-genus"></p>
+              <p id="sp-species"></p>
+              <p id="sp-names"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h3>NATIONAL CONSERVATION STATUS</h3>
+      <div id="sp-conservation">
+        <div id="sp-icun"></div>
+        <div id="sp-rodlist">
+          <div id="sp-rodlist-meter"></div>
+          <div class="sp-grid-container">
+            <div class="sp-grid">
+              <div class="grid-left">
+              <p>Category:</p>
+              <p>Last Assessed:</p>
+              <p>Criteria:</p>
+              <p>Assessed By:</p>
+              <p>Pop. Size:</p>
+              <p>Pop. Trend:</p>
+              <p>Ecosystem:</p>
+              <p>Habitat:</p>
+              <p>Habitats:</p>
+              <p>Substrate:</p>
+              <p>Threat:</p>
+              <p>Native:</p>
+              </div>
+              <div class="grid-right">
+              <p id="sp-rod-category"></p>
+              <p id="sp-rod-year"></p>
+              <p id="sp-rod-criteria"></p>
+              <p id="sp-rod-by"></p>
+              <p id="sp-rod-size"></p>
+              <p id="sp-rod-trend"></p>
+              <p id="sp-rod-ecosystem"></p>
+              <p id="sp-rod-habitat"></p>
+              <p id="sp-rod-habitat2"></p>
+              <p id="sp-rod-substrate"></p>
+              <p id="sp-rod-threats"></p>
+              <p id="sp-rod-native"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h3>BIOTIC INTERACTIONS</h3>
+      <div id="sp-interactions">
+        <div id="sp-cy-container">
+          <div id="sp-cy"></div>
+        </div>
+      </div>
+      <h3>BEHAVIOR</h3>
+      <div id="sp-behavior">
+        <div class="sp-grid-container">
+            <div class="sp-grid">
+              <div class="grid-left">
+              <p>General Behavior:</p>
+              </div>
+              <div class="grid-right">
+              <p id="sp-general"></p>
+              </div>
+            </div>
+          </div>
+        <div class="sp-grid-container">
+            <div class="sp-grid">
+              <div class="grid-left">
+              <p>Day-to-Day Habits:</p>
+              </div>
+              <div class="grid-right">
+              <p id="sp-daytoday"></p>
+              </div>
+            </div>
+          </div>
+        <div class="sp-grid-container">
+            <div class="sp-grid">
+              <div class="grid-left">
+              <p>Nesting Habits:</p>
+              </div>
+              <div class="grid-right">
+              <p id="sp-nesting"></p>
+              </div>
+            </div>
+          </div>
+        <div class="sp-grid-container">
+            <div class="sp-grid">
+              <div class="grid-left">
+              <p>Breeding Habits:</p>
+              </div>
+              <div class="grid-right">
+              <p id="sp-breeding"></p>
+              </div>
+            </div>
+          </div>
+      </div>
+      <h3>HABITAT REQUIREMENTS</h3>
+      <div id="sp-habitat">
+      
+      </div>
+      <h3>HUMAN PERCEPTION</h3>
+      <div id="sp-perception">
+      
+      </div>
+      <h3>PROJECTS TARGETING THIS SPECIES</h3>
+      <div id="sp-projects">
+      
+      </div>
+      <h3>CITATIONS</h3>
+      <div id="sp-citations"></div>
+      <h3>PORTRAIT JSON</h3>
+      <div id="sp-json-container">
+        <pre id="sp-json"></pre>
+       
+      </div>
+      <div id="debug-text"></div>
+    </div>
+    <script type="text/javascript" src="functions.js"></script>
     <script type="text/javascript" src="species-portrait.js"></script>
   </body>
 </html>
