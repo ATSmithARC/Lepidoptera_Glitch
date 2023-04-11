@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap");
 :root {
   --slateBlue: #3a4052;
-  --secondary-color: #04aa6d;
+  --secondary-color: #5c990c; /*#5c990c - #04aa6d*/
   --darkCharcoal: #333333;
   --k13: #dddddd;
   --k5: #f1f1f1;
@@ -189,12 +189,12 @@ h4 {
 }
 .btn {
   display: inline-block;
-  padding: 10px 30px;
-  background: var(--slateBlue);
+  padding: 8px 20px;
+  background: var(--secondary-color);
   color: white;
   border: 1px white solid;
   border-radius: 5px;
-  margin-top: 25px;
+  margin-top: 20px;
   opacity: 0.8;
 }
 .btn:hover {
@@ -712,15 +712,16 @@ text-align: center;
   height: 100%;
   object-fit: cover;
 }
-#sp-button-container {
+.sp-button-container {
   position: absolute;
   height: 80px;
   width: 100%;
   margin-top: -80px;
   z-index: 25;
 }
-#sp-button {
+.sp-button {
   margin: 0 auto;
+  width: 113px;
 }
 #sp-taxonomy {
   position: static;
@@ -781,4 +782,72 @@ text-align: center;
 }
 #button-hidden {
   display: none;
+}
+.sp-narrative-body {
+  padding-bottom: 10px;
+  width:95%;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.sp-narrative-title p {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 600;
+}
+.sp-narrative-body p {
+  font-size: 20px;  
+}
+.protect-overlay {
+  position: absolute;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255,255,255,0.3);
+  z-index: 55;
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+}
+.protect-overlay p {
+  color: rgba(0,0,0,0.3);
+  font-size: 40px;
+  font-weight: 600;
+}
+#sp-json {
+  
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  padding: 10px;
+  font-size: 14px;
+  font-family: monospace;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-x: auto;
+}
+#sp-json-btn-container {
+  width: 300px;
+  margin: 0 auto;
+}
+.sp-json-button-container {
+  position: relative;
+  width: 100%;
+  z-index: 25;
+  margin-bottom: 10px;
+}
+.sp-json-buttons {
+  margin: 0 auto;
+  width: 170px;
+}
+.copy-popup {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  background-color: #555;
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
 }

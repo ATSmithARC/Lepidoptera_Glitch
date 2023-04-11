@@ -23,15 +23,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
     <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
-    <script src="chrome-extension://lnkdbjbjpnpjeciipoaflmpcddinpjjp/mutationObserver.js"></script>
-    <script src="chrome-extension://lnkdbjbjpnpjeciipoaflmpcddinpjjp/mytube.js"></script>
     <script
       src="https://code.jquery.com/jquery-2.2.1.min.js"
       integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
       crossorigin="anonymous"
     ></script>
   </head>
-  <body>
+  <body ondblclick="overlayOn()">
+    
     <section class="navbar">
       <div class="topnav" id="myTopnav">
         <a href="index.html">Home</a>
@@ -68,13 +67,19 @@
       <h2 id="scientificName"></h2>
       <h3>RANGE</h3>
       <div id="sp-range">
-        <div id="sp-map"></div>
+        <div id="sp-map">
+        <div id="map-overlay" class="protect-overlay" onclick="overlayOff('map-overlay')">
+          <p>
+            Click to Interact
+          </p>
+          </div>
+        </div>
       </div>
       <h3>APPEARANCE</h3>
       <div id="sp-appearance">
         <div id="sp-gallery"></div>
-        <div id="sp-button-container">
-          <div id="sp-button">
+        <div class="sp-button-container">
+          <div class="sp-button">
             <a href="#getstarted" class="btn">See More</a>
           </div>
         </div>
@@ -114,32 +119,32 @@
           <div class="sp-grid-container">
             <div class="sp-grid">
               <div class="grid-left">
-              <p>Category:</p>
-              <p>Last Assessed:</p>
-              <p>Criteria:</p>
-              <p>Assessed By:</p>
-              <p>Pop. Size:</p>
-              <p>Pop. Trend:</p>
-              <p>Ecosystem:</p>
-              <p>Habitat:</p>
-              <p>Habitats:</p>
-              <p>Substrate:</p>
-              <p>Threat:</p>
-              <p>Native:</p>
+                <p>Category:</p>
+                <p>Last Assessed:</p>
+                <p>Criteria:</p>
+                <p>Assessed By:</p>
+                <p>Pop. Size:</p>
+                <p>Pop. Trend:</p>
+                <p>Ecosystem:</p>
+                <p>Habitat:</p>
+                <p>Habitats:</p>
+                <p>Substrate:</p>
+                <p>Threat:</p>
+                <p>Native:</p>
               </div>
               <div class="grid-right">
-              <p id="sp-rod-category"></p>
-              <p id="sp-rod-year"></p>
-              <p id="sp-rod-criteria"></p>
-              <p id="sp-rod-by"></p>
-              <p id="sp-rod-size"></p>
-              <p id="sp-rod-trend"></p>
-              <p id="sp-rod-ecosystem"></p>
-              <p id="sp-rod-habitat"></p>
-              <p id="sp-rod-habitat2"></p>
-              <p id="sp-rod-substrate"></p>
-              <p id="sp-rod-threats"></p>
-              <p id="sp-rod-native"></p>
+                <p id="sp-rod-category"></p>
+                <p id="sp-rod-year"></p>
+                <p id="sp-rod-criteria"></p>
+                <p id="sp-rod-by"></p>
+                <p id="sp-rod-size"></p>
+                <p id="sp-rod-trend"></p>
+                <p id="sp-rod-ecosystem"></p>
+                <p id="sp-rod-habitat"></p>
+                <p id="sp-rod-habitat2"></p>
+                <p id="sp-rod-substrate"></p>
+                <p id="sp-rod-threats"></p>
+                <p id="sp-rod-native"></p>
               </div>
             </div>
           </div>
@@ -148,70 +153,90 @@
       <h3>BIOTIC INTERACTIONS</h3>
       <div id="sp-interactions">
         <div id="sp-cy-container">
+          <div id="interaction-overlay" class="protect-overlay" onclick="overlayOff('interaction-overlay')">
+          <p>
+            Click to Interact
+          </p>
+          </div>
           <div id="sp-cy"></div>
         </div>
       </div>
       <h3>BEHAVIOR</h3>
       <div id="sp-behavior">
-        <div class="sp-grid-container">
-            <div class="sp-grid">
-              <div class="grid-left">
-              <p>General Behavior:</p>
-              </div>
-              <div class="grid-right">
-              <p id="sp-general"></p>
-              </div>
-            </div>
-          </div>
-        <div class="sp-grid-container">
-            <div class="sp-grid">
-              <div class="grid-left">
-              <p>Day-to-Day Habits:</p>
-              </div>
-              <div class="grid-right">
-              <p id="sp-daytoday"></p>
-              </div>
-            </div>
-          </div>
-        <div class="sp-grid-container">
-            <div class="sp-grid">
-              <div class="grid-left">
-              <p>Nesting Habits:</p>
-              </div>
-              <div class="grid-right">
-              <p id="sp-nesting"></p>
-              </div>
-            </div>
-          </div>
-        <div class="sp-grid-container">
-            <div class="sp-grid">
-              <div class="grid-left">
-              <p>Breeding Habits:</p>
-              </div>
-              <div class="grid-right">
-              <p id="sp-breeding"></p>
-              </div>
-            </div>
-          </div>
+        <div class="sp-narrative-title">
+          <p>General Behavior</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-general"></p>
+        </div>
+        <div class="sp-narrative-title">
+          <p>Day-to-Day Habits</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-daytoday"></p>
+        </div>
+        <div class="sp-narrative-title">
+          <p>Nesting Habits</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-nesting"></p>
+        </div>
+        <div class="sp-narrative-title">
+          <p>Breeding Habits</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-breeding"></p>
+        </div>
       </div>
       <h3>HABITAT REQUIREMENTS</h3>
       <div id="sp-habitat">
-      
+        <div class="sp-narrative-body">
+          <p id="sp-habitat-general"></p>
+        </div>
       </div>
       <h3>HUMAN PERCEPTION</h3>
       <div id="sp-perception">
-      
+        <div class="sp-narrative-title">
+          <p>General Perception</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-perception-general"></p>
+        </div>
+        <div class="sp-narrative-title">
+          <p>Cultural Significance</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-perception-cultural"></p>
+        </div>
+        <div class="sp-narrative-title">
+          <p>Benefits to Humans</p>
+        </div>
+        <div class="sp-narrative-body">
+          <p id="sp-perception-benefits"></p>
+        </div>
       </div>
       <h3>PROJECTS TARGETING THIS SPECIES</h3>
       <div id="sp-projects">
-      
+       <p style="text-align:center; margin-top: 20px; margin-bottom: 20px;">
+        Coming Soon!
+       </p>
       </div>
       <h3>CITATIONS</h3>
-      <div id="sp-citations"></div>
+      <div id="sp-citations">
+        <div class="sp-narrative-body">
+          <p id="sp-citation"></p>
+        </div>
+      </div>
       <h3>PORTRAIT JSON</h3>
       <div id="sp-json-container">
-        <pre id="sp-json"></pre>
-       
+        <div class="copy-popup" id="mycopyPopup">Copied!</div>
+        <div class="sp-json-button-container">
+        <div class="sp-json-buttons">
+        <button class="btn" onclick="togglePre()">Expand</button>
+        <button class="btn" onclick="copyPre(event)">Copy</button>  
+          </div>
+        </div>
+        <pre id="sp-json" style="display: none;"></pre>
       </div>
       <div id="debug-text"></div>
     </div>

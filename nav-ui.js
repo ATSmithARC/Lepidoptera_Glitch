@@ -20,3 +20,41 @@ function closeNav() {
   document.getElementById("mySidebar").style.width = "0";
   document.getElementById("main").style.marginLeft = "0";
 }
+
+function overlayOn() {
+  document.getElementById('map-overlay').style.display = "flex";
+  document.getElementById('interaction-overlay').style.display = "flex";
+}
+
+function overlayOff(id) {
+  document.getElementById(id).style.display = "none";
+}
+
+function togglePre() {
+  var pre = document.getElementById("sp-json");
+  
+  if (pre.style.display == "none") {
+    pre.style.display = "block";
+  } else {
+    pre.style.display = "none";
+  }
+}
+
+function copyPre(event) {
+  var pre = document.getElementById("sp-json");
+  
+  if (pre.style.display == "none") {
+    pre.style.display = "block";
+  }
+  
+  var range = document.createRange();
+  range.selectNode(pre);
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand("copy");
+  var popup = document.getElementById("mycopyPopup");
+  popup.style.display = "block";
+  popup.style.left = (event.clientX - 30) + "px";
+	popup.style.top = (event.clientY - 70) + "px";
+  setTimeout(function(){ popup.style.display = "none"; }, 1000);
+}
