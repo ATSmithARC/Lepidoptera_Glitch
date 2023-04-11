@@ -229,18 +229,6 @@ function findName(json) {
   return "noVernacularName";
 }
 
-// Appends text to a DOM element by ID. Red "No Data" if text is empty or null 
-function appendText(domID, text) {
-  if (text.length === 0 || text === null || Object.keys(text).length === 0) {
-   const s = document.createElement('span');
-   s.style.color = 'red';
-   s.textContent = 'No Data';
-   document.getElementById(domID).appendChild(s);  
-  } else {
-   document.getElementById(domID).appendChild(document.createTextNode(text));  
-  }
-}
-
 // Appends "Yes" or "No" to a DOM element by ID when given a bool 
 function appendBoolText(domID, bool) {
   var text = (bool == true) ? 'Yes' :'No';
@@ -249,3 +237,6 @@ function appendBoolText(domID, bool) {
     .appendChild(document.createTextNode(text));
 }
 
+function jsonEscape(str)  {
+    return str.replace('\n', '').replace('\r','');
+}

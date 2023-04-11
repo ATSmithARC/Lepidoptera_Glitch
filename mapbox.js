@@ -9,6 +9,7 @@ const map = new mapboxgl.Map({
   antialias: true,
 });
 
+/*
 // 3D Model - parameters to ensure the model is georeferenced correctly on the map
 const modelOrigin = [12.568, 55.6761];
 const modelAltitude = 0;
@@ -99,6 +100,7 @@ const customLayer = {
     this.map.triggerRepaint();
   },
 };
+*/
 
 // Create default popup, but don't add it to the map.
 const popupOffsets = {
@@ -878,7 +880,26 @@ map.on("load", () => {
             initCytoscapeOverlay();
           });
         }
-      } // if
+        
+        // Add Button to Download data as .gbi
+        if (!functionGroup.contains(document.getElementById("map-download"))) {
+          const download = document.createElement("input");
+          download.type = "checkbox";
+          download.id = "map-download";
+          download.checked = false;
+          functionGroup.appendChild(download);
+
+          const downloadLabel = document.createElement("label");
+          downloadLabel.setAttribute("for", "map-download");
+          downloadLabel.textContent = "Download Data (.gbi)";
+          functionGroup.appendChild(downloadLabel);
+
+          download.addEventListener("change", (e) => {
+            downloadGBI(gbifGeoJSON, );
+          });
+        }
+        
+      }
     }
   }
 });
