@@ -34,6 +34,7 @@ const debug = document.getElementById("debug-text");
 // Persistant variables
 var lastPOIClicked = "";
 let airports = [];
+const lastPolygon = {};
 
 // Returns a (Species Occurence) DOM Popup when invoked
 function poiPopup(f) {
@@ -198,7 +199,7 @@ function writeJson(exportObj, exportName) {
 }
 
 // Download data
-async function downloadGBI(occurences) {
+async function downloadGBI(occurences, region) {
     const speciesPortraits = [];
     const uniqueTaxons = getUniqueTaxonKeys(occurences);
     let i = 0;
@@ -214,7 +215,7 @@ async function downloadGBI(occurences) {
         const interactors = createSetAndReplace(speciesPortraits);
         debug.innerHTML = `<p>Compiling Climate Data... </p>`
         const climate = await fetchEpw("DNK_Copenhagen.061800_IWEC_EPW.json");
-        const gbi = { occurences, speciesPortraits, interactors, climate };
+        const gbi = {region, occurences, speciesPortraits, interactors, climate };
         //debug.innerHTML = `<p> ${JSON.stringify(gbi)} </p>`
         debug.innerHTML = ``
         writeJson(gbi, 'exportName')
@@ -749,6 +750,7 @@ map.on("load", () => {
                     return;
                 }
                 const gbifGeoJSON = await pageRequest(geoJSONpoly);
+                let lastPolygon = geoJSONpoly;
                 if (map.getSource("airports") == undefined) {
                     map.addSource("airports", {
                         type: "geojson",
@@ -847,7 +849,7 @@ map.on("load", () => {
                     functionGroup.appendChild(downloadLabel);
 
                     download.addEventListener("change", (e) => {
-                        downloadGBI(gbifGeoJSON);
+                    downloadGBI(gbifGeoJSON, lastPolygon);
                     });
                 }
             }
