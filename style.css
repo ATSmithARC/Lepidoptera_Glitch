@@ -1,7 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;1,300&display=swap");
 :root {
   --slateBlue: #3a4052;
-  --secondary-color: #5c990c; /*#5c990c - #04aa6d*/
+  --secondary-color: #5c990c;
+  --secondary-color-light: #7ab72a;
+  --accent-color: #97a840;
+  --accent-color-light: #b5c65e;
   --darkCharcoal: #333333;
   --k13: #dddddd;
   --k5: #f1f1f1;
@@ -321,6 +324,7 @@ h4 {
 }
 .result-filter .listing a:hover {
   background: var(--k5);
+  cursor: pointer;
 }
 .filter-group {
   font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -349,27 +353,27 @@ h4 {
   cursor: pointer;
   padding: 5px;
   border-style: dotted;
-  border-color: rgba(0, 0, 0, 0.1);
+  border-color: rgba(0, 0, 0, 0.2);
   border-width: 1px;
   color: var(--slateBlue);
 }
 .filter-group input[type="checkbox"] + label {
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: var(--k5);
   text-transform: capitalize;
   color: var(--slateBlue);
 }
 .filter-group input[type="checkbox"] + label:hover {
-  background-color: rgba(130, 213, 182, 0.9);
+  background-color: var(--secondary-color-light);
   color: var(--slateBlue);
 }
 .filter-group input[type="checkbox"]:checked + label {
-  background-color: rgba(4, 170, 109, 0.9);
-  color: var(--slateBlue);
+  background-color: var(--secondary-color);
+  color: var(--k5);
 }
 .filter-group input[type="checkbox"]:checked + label:before {
   content: "✔";
   margin-right: 5px;
-  color: var(--slateBlue);
+  color: var(--k5);
 }
 .function-group {
   font: 12px/20px "Helvetica Neue", Arial, Helvetica, sans-serif;
@@ -379,7 +383,6 @@ h4 {
   left: 10px;
   border-radius: 3px;
   width: 90%;
-  color: white;
   z-index: 351;
 }
 .function-group input[type="checkbox"]:first-child + label {
@@ -393,32 +396,32 @@ h4 {
   display: none;
 }
 .function-group input[type="checkbox"] + label {
-  background-color: var(--secondary-color);
+  background-color: var(--accent-color);
   display: block;
   cursor: pointer;
   padding: 5px;
   border-style: dotted;
   border-color: rgba(0, 0, 0, 0.1);
   border-width: 1px;
-  color: black;
+  color: var(--k5);
 }
 .function-group input[type="checkbox"] + label {
-  background-color: rgba(255, 245, 245, 0.9);
+  background-color: var(--accent-color);
   text-transform: capitalize;
-  color: var(--slateBlue);
+  color: var(--k5);
 }
 .function-group input[type="checkbox"] + label:hover {
-  background-color: rgba(130, 213, 182, 0.9);
-  color: var(--slateBlue);
+  background-color: var(--accent-color-light);
+  color: var(--k5);
 }
 .function-group input[type="checkbox"]:checked + label {
-  background-color: rgba(4, 170, 109, 0.9);
-  color: var(--slateBlue);
+  background-color: var(--accent-color);
+  color: var(--k5);
 }
 .function-group input[type="checkbox"]:checked + label:before {
   content: "✔";
   margin-right: 5px;
-  color: var(--slateBlue);
+  color: var(--k5);
 }
 .lds-grid {
   display: inline-block;
@@ -575,10 +578,14 @@ h4 {
 .mapboxgl-popup .grid-container .grid-child-right {
     padding: 5px;
 }
+.mapboxgl-popup .grid-container .grid-child-left {
+    border-bottom-left-radius: 5px;
+}
 .mapboxgl-popup-content {
   border-radius: 5px;
   padding: 0px;
   margin: 0px;
+  border-bottom-left-radius: 5px;
 } 
 .mapboxgl-popup-content img {
   border-top-left-radius: 5px;
@@ -627,7 +634,7 @@ h4 {
   text-align: center;
   font-size: 1em;
   margin-top: 4px;
-  background-color: #74BF6A;
+  background-color: var(--accent-color);
   border-radius: 5px/5px;
   cursor: pointer;
   transition: all 0.3s ease-out;
@@ -850,4 +857,8 @@ text-align: center;
   color: white;
   padding: 10px;
   border-radius: 5px;
+}
+#debug-text {
+  position:fixed;
+  z-index: 6000;
 }

@@ -42,8 +42,26 @@ function getUniqueFeatures(features, comparatorProperty) {
   return uniqueFeatures;
 }
 
+function removeInvalidStrings(obj) {
+  for (let i = 0; i < obj.data.length; i++) {
+    if (obj.data[i][1] === "no name" ||
+        obj.data[i][1] === "cultivated" ||
+        obj.data[i][1].length > 50 ||
+        obj.data[i][1].startsWith("BOLD") ||
+        obj.data[i][1].startsWith("UCSC") ||
+        obj.data[i][1].startsWith("EMEC") ||
+        obj.data[i][1].startsWith("TTU") ||
+        obj.data[i][1].startsWith("UTAH") ||
+        obj.data[i][1].startsWith("http")) {
+      obj.data = obj.data.filter((_, index) => index !== i);
+      i--;
+    }
+  }
+  return obj;
+}
+
 // Remove duplicate JSON objects
-function removeDuplicates(json) {
+function cleanInteractionData(json) {
   let uniqueData = [];
   let uniqueDataString = [];
 
@@ -54,10 +72,9 @@ function removeDuplicates(json) {
       uniqueDataString.push(dataString);
     }
   }
-  return {
-    columns: json.columns,
-    data: uniqueData,
-  };
+  const cleanedData =  { columns: json.columns, data: uniqueData };
+  const filteredData = removeInvalidStrings(cleanedData);
+  return filteredData;
 }
 
 // Remove duplicate nodes and Edged from Cytoscpe elements formatted JSON
@@ -92,7 +109,7 @@ function removeDuplicateNodesEdges(json) {
 }
 
 // Fetch a Species Checklist for a country (hardcoded to Denmark)
-async function fetchCountrySpeciesList() {
+async function fetchNationalSpeciesList() {
   const url = "https://lepidoptera.glitch.me/localspecies.json";
   const data = await getDataJSON(url);
   return data;
@@ -123,7 +140,7 @@ async function fetchNodeThumbnails(names) {
 
 // Convert GloBi Response to Node/Edge JSON
 async function convertJSON(json, species) {
-  const nativeSpecies = await fetchCountrySpeciesList();
+  const nativeSpecies = await fetchNationalSpeciesList();
   const source = encodeURIComponent(species);
   const nodes = [];
   const edges = [];
@@ -148,13 +165,13 @@ async function convertJSON(json, species) {
   return { elements: elements, names: names };
 }
 
-// Fetches and cleans interaction data response from GloBi for a given species 
+// Fetches and cleans interaction data response from GloBi for a given species
 async function fetchInteractionData(species) {
   const speciesURI = encodeURIComponent(species);
   const url = `https://api.globalbioticinteractions.org/interaction?sourceTaxon=${speciesURI}&interactionType=ecologicallyRelatedTo&fields=interaction_type,target_taxon_name`;
   const response = await fetch(url);
   const data = await response.json();
-  let cleanedJSON = removeDuplicates(data);
+  let cleanedJSON = cleanInteractionData(data);
   return cleanedJSON;
 }
 
@@ -211,7 +228,9 @@ async function fetchRodlist(speciesName) {
     }
   );
   const json = await response.json();
-  console.log(json);
+  if(json.data.length < 1) {
+      json.data.push("no Data");
+    }
   return json;
 }
 
@@ -229,14 +248,245 @@ function findName(json) {
   return "noVernacularName";
 }
 
-// Appends "Yes" or "No" to a DOM element by ID when given a bool 
-function appendBoolText(domID, bool) {
-  var text = (bool == true) ? 'Yes' :'No';
-  document
-    .getElementById(domID)
-    .appendChild(document.createTextNode(text));
+async function fetchGithubPage(taxonKey) {
+  const url = `https://atsmitharc.github.io/data/${taxonKey}.json`;
+  try {
+    let data = await fetch(url);
+    return await data.json();
+  } catch (error) {
+    console.log(error);
+  }
 }
 
-function jsonEscape(str)  {
-    return str.replace('\n', '').replace('\r','');
+async function fetchEpw(filename) {
+  const url = `https://atsmitharc.github.io/data/${filename}`;
+  try {
+    let data = await fetch(url);
+    return await data.json();
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+function jsonEscape(str) {
+  return str.replace("\n", "").replace("\r", "");
+}
+
+const removeEmpty = (obj) => {
+  Object.entries(obj).forEach(
+    ([key, val]) =>
+      (val && typeof val === "object" && removeEmpty(val)) ||
+      ((val === null || val === "") && delete obj[key])
+  );
+  return obj;
+};
+
+function removeEmptyArrays(obj) {
+  if (Array.isArray(obj)) {
+    return obj
+      .filter((item) => !Array.isArray(item) || item.length > 0)
+      .map(removeEmptyArrays);
+  } else if (typeof obj === "object" && obj !== null) {
+    return Object.entries(obj)
+      .filter(([key, value]) => !Array.isArray(value) || value.length > 0)
+      .reduce(
+        (acc, [key, value]) => ({ ...acc, [key]: removeEmptyArrays(value) }),
+        {}
+      );
+  }
+  return obj;
+}
+
+function removeEmptyObjects(obj) {
+  Object.keys(obj).forEach((key) => {
+    if (obj[key] && typeof obj[key] === "object") {
+      removeEmptyObjects(obj[key]);
+      if (Object.keys(obj[key]).length === 0) {
+        delete obj[key];
+      }
+    } else if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
+      delete obj[key];
+    }
+  });
+  return obj;
+}
+
+function cleanRodlist(json) {
+  const a = removeEmpty(json);
+  const b = removeEmptyArrays(a);
+  const c = removeEmptyObjects(b);
+  return c;
+}
+
+function truncateRodlist(r) {
+  if (r.speciesInformation) {
+    delete r.speciesInformation.arterDKId;
+    delete r.speciesInformation.scientificNameAuthorship;
+    delete r.speciesInformation.speciesGroup;
+    delete r.speciesInformation.family;
+    delete r.speciesInformation.taxonId;
+    delete r.speciesInformation.order;
+  }
+}
+
+function truncateOccurence(o) {
+  delete o.datasetKey;
+  delete o.acceptedTaxonKey;
+  delete o.publishingOrgKey;
+  delete o.installationKey;
+  delete o.publishingCountry;
+  delete o.genericName;
+  delete o.protocol;
+  delete o.year;
+  delete o.month;
+  delete o.day;
+  delete o.lastCrawled;
+  delete o.lastParsed;
+  delete o.lastInterpreted;
+  delete o.crawlId;
+  delete o.hostingOrganizationKey;
+  delete o.extensions;
+  delete o.occurrenceStatus;
+  delete o.kingdomKey;
+  delete o.phylimKey;
+  delete o.classKey;
+  delete o.orderKey;
+  delete o.familyKey;
+  delete o.genusKey;
+  delete o.acceptedScientificName;
+  delete o.specificEpithet;
+  delete o.taxonomicStatus;
+  delete o.issues;
+  delete o.modified;
+  delete o.license;
+  delete o.identifiers;
+  delete o.facts;
+  delete o.relations;
+  delete o.isInCluster;
+  delete o.countryCode;
+  delete o.recordedByIDs;
+  delete o.identifiedByIDs;
+  delete o.rightsHolder;
+  delete o.verbatimEventDate;
+  delete o.collectionCode;
+  delete o.gbifID;
+  delete o.verbatimLocality;
+  delete o.catalogNumber;
+  delete o.institutionCode;
+  delete o.identificationID;
+  delete o.gadm;
+  delete o.recordedBy;
+  delete o.eventDate;
+  delete o.eventTime;
+}
+
+function truncateSpecies(s) {
+  delete s.nubKey;
+  delete s.nameKey;
+  delete s.taxonID;
+  delete s.sourceTaxonKey;
+  delete s.kingdomKey;
+  delete s.phylumKey;
+  delete s.classKey;
+  delete s.orderKey;
+  delete s.familyKey;
+  delete s.genusKey;
+  delete s.speciesKey;
+  delete s.datasetKey;
+  delete s.constituentKey;
+  delete s.parent;
+  delete s.parentKey;
+  delete s.scientificName;
+  delete s.authorship;
+  delete s.nameType;
+  delete s.rank;
+  delete s.origin;
+  delete s.taxonomicStatus;
+  delete s.nomenclaturalStatus;
+  delete s.remarks;
+  delete s.publishedIn;
+  delete s.numDescendants;
+  delete s.lastCrawled;
+  delete s.lastInterpreted;
+  delete s.issues;
+  delete s.synonym;
+  delete s.origin;
+}
+
+async function fetchSpeciesGBIF(taxonKey) {
+  const api = `https://api.gbif.org/v1/species/${taxonKey}`;
+  return await getDataJSON(api);
+}
+
+async function fetchSpeciesNamesGBIF(taxonKey) {
+  const api = `https://api.gbif.org/v1/species/${taxonKey}/vernacularNames`;
+  return await getDataJSON(api);
+}
+
+async function fetchSpeciesSynonymsGBIF(taxonKey) {
+  const api = `https://api.gbif.org/v1/species/${taxonKey}/synonyms`;
+  return await getDataJSON(api);
+}
+
+async function buildSpeciesPortrait(taxonKey) {
+  console.time('fetchSpeciesGBIF');
+  const species = await fetchSpeciesGBIF(taxonKey);
+  console.timeEnd('fetchSpeciesGBIF');
+  truncateSpecies(species);
+  console.time('fetchInteractionData');
+  const interactionData = await fetchInteractionData(species.species);
+  console.timeEnd('fetchInteractionData');
+  const interactionSet = convertJsonToSet(interactionData);
+  console.time('fetchSpeciesNamesGBIF');
+  const names = await fetchSpeciesNamesGBIF(taxonKey);
+  console.timeEnd('fetchSpeciesNamesGBIF');
+  const engName = findName(names);
+  console.time('fetchRodlist');
+  var rodlist = await fetchRodlist(species.species);
+  console.timeEnd('fetchRodlist');
+  if (rodlist.data[0] === "no Data") {
+    //If national Redlist uses cannonical name instead of species name
+    rodlist = await fetchRodlist(species.canonicalName);
+  }
+  const rodlistClean = cleanRodlist(rodlist);
+  truncateRodlist(rodlistClean);
+  console.time('fetchGithubPage');
+  const narrative = await fetchGithubPage(taxonKey);
+  console.timeEnd('fetchGithubPage');
+  const sp = {
+    species: species,
+    vernacularName: engName,
+    nationalRedlist: rodlistClean.data[rodlist.data.length - 1],
+    narrative: narrative,
+    bioticInteractions: interactionSet,
+  };
+  return sp;
+}
+
+// Creates a set of all unique biotic interaction values from an array of Species portraits
+// Replaces the initial JSOON
+function createSetAndReplace(jsonArray) {
+  const set = new Set();
+  jsonArray.forEach((obj) => {
+    const bioticInteractions = obj.bioticInteractions.data;
+    Object.values(bioticInteractions).forEach((value) => {
+      if (Array.isArray(value)) {
+        value.forEach((v) => set.add(v));
+      } else {
+        set.add(value);
+      }
+    });
+  });
+  const indexMap = new Map([...set].map((v, i) => [v, i]));
+  jsonArray.forEach((obj) => {
+    const bioticInteractions = obj.bioticInteractions.data;
+    Object.entries(bioticInteractions).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        bioticInteractions[key] = value.map((v) => indexMap.get(v));
+      } else {
+        bioticInteractions[key] = indexMap.get(value);
+      }
+    });
+  });
+  return [...set];
 }

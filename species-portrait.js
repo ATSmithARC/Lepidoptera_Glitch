@@ -2,16 +2,9 @@
 const occurenceKey = decodeURIComponent(
   window.location.search.substring(1).split("=")[1]
 );
-
-async function fetchGithubPage(taxonKey) {
-  const url = `https://atsmitharc.github.io/data/${taxonKey}.json`;
-  try {
-    let data = await fetch(url);
-    return await data.json();
-  } catch (error) {
-    console.log(error);
-  }
-}
+const debug = document.getElementById("debug-text");
+debug.innerHTML = `<p> Occurence Key Recieved ${occurenceKey}. Fetching Occurence Data... </p>`
+renderSpeciesPortrait(occurenceKey);
 
 function getimages(json) {
   const images = [];
@@ -113,60 +106,12 @@ function appendJSONToDiv(jsonObj, divKeyID, divValueID) {
   }
 }
 
-function appendCountryRedlist(speciesPortrait, divId) {
+function appendNationalRedlist(speciesPortrait, divId) {
   appendJSONToDiv(jsonObj, divId);
 }
 
-const removeEmpty = (obj) => {
-  Object.entries(obj).forEach(
-    ([key, val]) =>
-      (val && typeof val === "object" && removeEmpty(val)) ||
-      ((val === null || val === "") && delete obj[key])
-  );
-  return obj;
-};
-
-function removeEmptyArrays(obj) {
-  if (Array.isArray(obj)) {
-    return obj
-      .filter((item) => !Array.isArray(item) || item.length > 0)
-      .map(removeEmptyArrays);
-  } else if (typeof obj === "object" && obj !== null) {
-    return Object.entries(obj)
-      .filter(([key, value]) => !Array.isArray(value) || value.length > 0)
-      .reduce(
-        (acc, [key, value]) => ({ ...acc, [key]: removeEmptyArrays(value) }),
-        {}
-      );
-  }
-  return obj;
-}
-
-function removeEmptyObjects(obj) {
-  Object.keys(obj).forEach((key) => {
-    if (obj[key] && typeof obj[key] === "object") {
-      removeEmptyObjects(obj[key]);
-      if (Object.keys(obj[key]).length === 0) {
-        delete obj[key];
-      }
-    } else if (obj[key] === null || obj[key] === undefined || obj[key] === "") {
-      delete obj[key];
-    }
-  });
-  return obj;
-}
-
-function cleanJSON(json) {
-  const a = removeEmpty(json);
-  const b = removeEmptyArrays(a);
-  const c = removeEmptyObjects(b);
-  return c;
-}
-
 function joinNames(strArray) {
-  
   //var str = strArray.map((obj) => obj.name).join(", ");
-  
   //return str;
 }
 
@@ -182,41 +127,49 @@ function appendText(domID, text) {
   }
 }
 
+// Appends "Yes" or "No" to a DOM element by ID when given a bool 
+function appendBoolText(domID, bool) {
+  var text = (bool == true) ? 'Yes' :'No';
+  document
+    .getElementById(domID)
+    .appendChild(document.createTextNode(text));
+}
+
 // Populate the HTML elements with Species Portrait data
 function populateDOM(sp) { 
-  initInteractionsCy(sp.occurence.species, "sp-cy");
-  getPoster(sp.occurence.taxonKey);
-  initMap(sp.occurence.taxonKey);
-  initGallery(sp.occurence.taxonKey);
+  initInteractionsCy(sp.species.species, "sp-cy");
+  getPoster(sp.species.key);
+  initMap(sp.species.key);
+  initGallery(sp.species.key);
 
   appendText("vernacularName", sp.vernacularName);
-  appendText("scientificName", sp.occurence.species);
-  appendText("sp-kingdom", sp.occurence.kingdom);
-  appendText("sp-phylum", sp.occurence.phylum);
-  appendText("sp-class", sp.occurence.class);
-  appendText("sp-order", sp.occurence.order);
-  appendText("sp-family", sp.occurence.family);
-  appendText("sp-genus", sp.occurence.genus);
-  appendText("sp-species", sp.occurence.species);
+  appendText("scientificName", sp.species.species);
+  appendText("sp-kingdom", sp.species.kingdom);
+  appendText("sp-phylum", sp.species.phylum);
+  appendText("sp-class", sp.species.class);
+  appendText("sp-order", sp.species.order);
+  appendText("sp-family", sp.species.family);
+  appendText("sp-genus", sp.species.genus);
+  appendText("sp-species", sp.species.species);
   appendText("sp-names", sp.vernacularName);
-  appendRodlistImg("sp-rodlist-meter",sp.countryRedlist.redlistCategory.category);
-  appendText("sp-rod-category", sp.countryRedlist.redlistCategory.category);
-  appendText("sp-rod-year", sp.countryRedlist.assessmentDate);
-  appendText("sp-rod-criteria", sp.countryRedlist.redlistCategory.criteria);
-  appendText("sp-rod-by", sp.countryRedlist.assessmentInfo.assessedBy);
-  appendText("sp-rod-size",sp.countryRedlist.extended.population.matureIndividuals);
-  appendText("sp-rod-trend", sp.countryRedlist.additionalInformation.trend);
+  appendRodlistImg("sp-rodlist-meter",sp.nationalRedlist.redlistCategory.category);
+  appendText("sp-rod-category", sp.nationalRedlist.redlistCategory.category);
+  appendText("sp-rod-year", sp.nationalRedlist.assessmentDate);
+  appendText("sp-rod-criteria", sp.nationalRedlist.redlistCategory.criteria);
+  appendText("sp-rod-by", sp.nationalRedlist.assessmentInfo.assessedBy);
+  appendText("sp-rod-size",sp.nationalRedlist.extended.population.matureIndividuals);
+  appendText("sp-rod-trend", sp.nationalRedlist.additionalInformation.trend);
 
-  if (sp.countryRedlist.habitat) {
-   appendText("sp-rod-ecosystem", joinNames(sp.countryRedlist.habitat.ecosystems));
-   appendText("sp-rod-habitat",joinNames(sp.countryRedlist.habitat.overallHabitatTypes));
-   appendText("sp-rod-habitat2",joinNames(sp.countryRedlist.habitat.specificHabitatTypes));
-   appendText("sp-rod-substrate",joinNames(sp.countryRedlist.habitat.substrates));
+  if (sp.nationalRedlist.habitat) {
+   appendText("sp-rod-ecosystem", joinNames(sp.nationalRedlist.habitat.ecosystems));
+   appendText("sp-rod-habitat",joinNames(sp.nationalRedlist.habitat.overallHabitatTypes));
+   appendText("sp-rod-habitat2",joinNames(sp.nationalRedlist.habitat.specificHabitatTypes));
+   appendText("sp-rod-substrate",joinNames(sp.nationalRedlist.habitat.substrates));
   }
   
-  if (sp.countryRedlist.extended) {
-   appendText("sp-rod-threats", joinNames(sp.countryRedlist.extended.threats));
-   appendBoolText("sp-rod-native", sp.countryRedlist.extended.native);
+  if (sp.nationalRedlist.extended) {
+   appendText("sp-rod-threats", joinNames(sp.nationalRedlist.extended.threats));
+   appendBoolText("sp-rod-native", sp.nationalRedlist.extended.native);
   }
   if (sp.narrative) {
    appendText("sp-general", sp.narrative.data[0].desc);
@@ -245,89 +198,15 @@ async function initGallery(taxonKey) {
   }
 }
 
-function truncateOccurence(occurence) {
-  delete occurence.datasetKey;
-  delete occurence.acceptedTaxonKey;
-  delete occurence.publishingOrgKey;
-  delete occurence.installationKey;
-  delete occurence.publishingCountry;
-  delete occurence.genericName;
-  delete occurence.protocol;
-  delete occurence.year;
-  delete occurence.month;
-  delete occurence.day;
-  delete occurence.lastCrawled;
-  delete occurence.lastParsed;
-  delete occurence.lastInterpreted;
-  delete occurence.crawlId;
-  delete occurence.hostingOrganizationKey;
-  delete occurence.extensions;
-  delete occurence.occurrenceStatus;
-  delete occurence.kingdomKey;
-  delete occurence.phylimKey;
-  delete occurence.classKey;
-  delete occurence.orderKey;
-  delete occurence.familyKey;
-  delete occurence.genusKey;
-  delete occurence.acceptedScientificName;
-  delete occurence.specificEpithet;
-  delete occurence.taxonomicStatus;
-  delete occurence.issues;
-  delete occurence.modified;
-  delete occurence.license;
-  delete occurence.identifiers;
-  delete occurence.facts;
-  delete occurence.relations;
-  delete occurence.isInCluster;
-  delete occurence.countryCode;
-  delete occurence.recordedByIDs;
-  delete occurence.identifiedByIDs;
-  delete occurence.rightsHolder;
-  delete occurence.verbatimEventDate;
-  delete occurence.collectionCode;
-  delete occurence.gbifID;
-  delete occurence.verbatimLocality;
-  delete occurence.catalogNumber;
-  delete occurence.institutionCode;
-  delete occurence.identificationID;
-  delete occurence.gadm;
-  delete occurence.recordedBy;
-  delete occurence.eventDate;
-  delete occurence.eventTime;
-}
-
 async function fetchOccurenceGBIF(occurenceKey) {
   const api = `https://api.gbif.org/v1/occurrence/${occurenceKey}`;
   return await getDataJSON(api);
 }
 
-async function fetchSpeciesGBIF(taxonKey) {
-  const api = `https://api.gbif.org/v1/species/${taxonKey}/vernacularNames`;
-  return await getDataJSON(api);
-}
-
-async function buildSpeciesPortrait(occurenceKey) {
-  const occurence = await fetchOccurenceGBIF(occurenceKey);
-  truncateOccurence(occurence);
-  const interactionData = await fetchInteractionData(occurence.species);
-  const interactionSet = convertJsonToSet(interactionData);
-  const species = await fetchSpeciesGBIF(occurence.taxonKey);
-  const engName = findName(species);
-  const rodlist = await fetchRodlist(occurence.species);
-  const rodlistClean = cleanJSON(rodlist);
-  const narrative = await fetchGithubPage(occurence.taxonKey);
-  const sp = {
-    occurence: occurence,
-    vernacularName: engName,
-    countryRedlist: rodlistClean.data[rodlist.data.length - 1],
-    narrative: narrative,
-    bioticInteractions: interactionSet,
-  };
-  return sp;
-}
-
 async function renderSpeciesPortrait(occurenceKey) {
-  const sp = await buildSpeciesPortrait(occurenceKey);
+  const occurence = await fetchOccurenceGBIF(occurenceKey);
+  debug.innerHTML = `<p> Occurence Data Recieved. Building Species Portrait... </p>`
+  const sp = await buildSpeciesPortrait(occurence.taxonKey);
   document.getElementById("sp-json").textContent = JSON.stringify(
     sp,
     undefined,
@@ -335,5 +214,3 @@ async function renderSpeciesPortrait(occurenceKey) {
   );
   populateDOM(sp);
 }
-
-renderSpeciesPortrait(occurenceKey);
