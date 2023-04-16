@@ -1,8 +1,3 @@
-// Normalize a string
-function normalize(string) {
-  return string.trim().toLowerCase();
-}
-
 // Fetch JSON data from a URL
 async function getDataJSON(url) {
   try {
@@ -28,31 +23,19 @@ function convertJsonToSet(json) {
   return result;
 }
 
-// Remove duplicate features from a collection of features
-function getUniqueFeatures(features, comparatorProperty) {
-  const uniqueIds = new Set();
-  const uniqueFeatures = [];
-  for (const feature of features) {
-    const id = feature.properties[comparatorProperty];
-    if (!uniqueIds.has(id)) {
-      uniqueIds.add(id);
-      uniqueFeatures.push(feature);
-    }
-  }
-  return uniqueFeatures;
-}
-
 function removeInvalidStrings(obj) {
   for (let i = 0; i < obj.data.length; i++) {
-    if (obj.data[i][1] === "no name" ||
-        obj.data[i][1] === "cultivated" ||
-        obj.data[i][1].length > 50 ||
-        obj.data[i][1].startsWith("BOLD") ||
-        obj.data[i][1].startsWith("UCSC") ||
-        obj.data[i][1].startsWith("EMEC") ||
-        obj.data[i][1].startsWith("TTU") ||
-        obj.data[i][1].startsWith("UTAH") ||
-        obj.data[i][1].startsWith("http")) {
+    if (
+      obj.data[i][1] === "no name" ||
+      obj.data[i][1] === "cultivated" ||
+      obj.data[i][1].length > 50 ||
+      obj.data[i][1].startsWith("BOLD") ||
+      obj.data[i][1].startsWith("UCSC") ||
+      obj.data[i][1].startsWith("EMEC") ||
+      obj.data[i][1].startsWith("TTU") ||
+      obj.data[i][1].startsWith("UTAH") ||
+      obj.data[i][1].startsWith("http")
+    ) {
       obj.data = obj.data.filter((_, index) => index !== i);
       i--;
     }
@@ -72,7 +55,7 @@ function cleanInteractionData(json) {
       uniqueDataString.push(dataString);
     }
   }
-  const cleanedData =  { columns: json.columns, data: uniqueData };
+  const cleanedData = { columns: json.columns, data: uniqueData };
   const filteredData = removeInvalidStrings(cleanedData);
   return filteredData;
 }
@@ -115,6 +98,7 @@ async function fetchNationalSpeciesList() {
   return data;
 }
 
+/* W.I.P
 // Fetch thumbnails given an array of species names and format results into Cytoscape Stylesheet
 async function fetchNodeThumbnails(names) {
   const DEFAULT_THUMBNAIL_URL =
@@ -137,6 +121,7 @@ async function fetchNodeThumbnails(names) {
     }));
   return { style };
 }
+*/
 
 // Convert GloBi Response to Node/Edge JSON
 async function convertJSON(json, species) {
@@ -192,16 +177,13 @@ async function initInteractionsCy(species, containerID) {
       name: "concentric",
     },
   });
-
   cy.on("tap", "node", async function (e) {
     const node = e.target;
     const nodeId = node.id();
-
     // Open a new Portrait for Tapped Node
     const portraitURL = "species-interactions.html?input=" + nodeId;
     window.open(portraitURL, "_blank");
-
-    /*
+    /* W.I.P
     //Open an Info Page for Tapped Node
     const apiUrl = `https://api.globalbioticinteractions.org/findExternalUrlForTaxon/${nodeId}`;
     fetch(apiUrl)
@@ -219,7 +201,9 @@ async function initInteractionsCy(species, containerID) {
 // Fetch assessment for species on DK Redlist
 async function fetchRodlist(speciesName) {
   const response = await fetch(
-    `https://api.redlist.au.dk/public/v1/assessments?speciesName=${encodeURIComponent(speciesName)}`,
+    `https://api.redlist.au.dk/public/v1/assessments?speciesName=${encodeURIComponent(
+      speciesName
+    )}`,
     {
       headers: {
         accept: "application/json",
@@ -228,12 +212,13 @@ async function fetchRodlist(speciesName) {
     }
   );
   const json = await response.json();
-  if(json.data.length < 1) {
-      json.data.push("no Data");
-    }
+  if (json.data.length < 1) {
+    json.data.push("no Data");
+  }
   return json;
 }
 
+// Searches GBIF 'Species/Names' JSON for the english vernacular name
 function findName(json) {
   for (let i = 0; i < json.results.length; i++) {
     if (json.results[i].language === "eng") {
@@ -248,6 +233,7 @@ function findName(json) {
   return "noVernacularName";
 }
 
+// Returns Github hosted narrative.json file for a given taxonKey
 async function fetchGithubPage(taxonKey) {
   const url = `https://atsmitharc.github.io/data/${taxonKey}.json`;
   try {
@@ -258,20 +244,7 @@ async function fetchGithubPage(taxonKey) {
   }
 }
 
-async function fetchEpw(filename) {
-  const url = `https://atsmitharc.github.io/data/${filename}`;
-  try {
-    let data = await fetch(url);
-    return await data.json();
-  } catch (error) {
-    console.log(error);
-  }
-}
-
-function jsonEscape(str) {
-  return str.replace("\n", "").replace("\r", "");
-}
-
+// Removes empty/null key/value pairs from a JS object
 const removeEmpty = (obj) => {
   Object.entries(obj).forEach(
     ([key, val]) =>
@@ -281,6 +254,7 @@ const removeEmpty = (obj) => {
   return obj;
 };
 
+// Removes empty arrays from a JS object
 function removeEmptyArrays(obj) {
   if (Array.isArray(obj)) {
     return obj
@@ -297,6 +271,7 @@ function removeEmptyArrays(obj) {
   return obj;
 }
 
+// Removes empty objects from a JS object
 function removeEmptyObjects(obj) {
   Object.keys(obj).forEach((key) => {
     if (obj[key] && typeof obj[key] === "object") {
@@ -311,6 +286,7 @@ function removeEmptyObjects(obj) {
   return obj;
 }
 
+// Remove emtpy data from National Redlist JSON 
 function cleanRodlist(json) {
   const a = removeEmpty(json);
   const b = removeEmptyArrays(a);
@@ -318,6 +294,7 @@ function cleanRodlist(json) {
   return c;
 }
 
+// Remove un-needed fields from national redlist data to reduce .gbi size 
 function truncateRodlist(r) {
   if (r.speciesInformation) {
     delete r.speciesInformation.arterDKId;
@@ -329,57 +306,7 @@ function truncateRodlist(r) {
   }
 }
 
-function truncateOccurence(o) {
-  delete o.datasetKey;
-  delete o.acceptedTaxonKey;
-  delete o.publishingOrgKey;
-  delete o.installationKey;
-  delete o.publishingCountry;
-  delete o.genericName;
-  delete o.protocol;
-  delete o.year;
-  delete o.month;
-  delete o.day;
-  delete o.lastCrawled;
-  delete o.lastParsed;
-  delete o.lastInterpreted;
-  delete o.crawlId;
-  delete o.hostingOrganizationKey;
-  delete o.extensions;
-  delete o.occurrenceStatus;
-  delete o.kingdomKey;
-  delete o.phylimKey;
-  delete o.classKey;
-  delete o.orderKey;
-  delete o.familyKey;
-  delete o.genusKey;
-  delete o.acceptedScientificName;
-  delete o.specificEpithet;
-  delete o.taxonomicStatus;
-  delete o.issues;
-  delete o.modified;
-  delete o.license;
-  delete o.identifiers;
-  delete o.facts;
-  delete o.relations;
-  delete o.isInCluster;
-  delete o.countryCode;
-  delete o.recordedByIDs;
-  delete o.identifiedByIDs;
-  delete o.rightsHolder;
-  delete o.verbatimEventDate;
-  delete o.collectionCode;
-  delete o.gbifID;
-  delete o.verbatimLocality;
-  delete o.catalogNumber;
-  delete o.institutionCode;
-  delete o.identificationID;
-  delete o.gadm;
-  delete o.recordedBy;
-  delete o.eventDate;
-  delete o.eventTime;
-}
-
+// Remove un-needed fields from GBIF species data to reduce .gbi size 
 function truncateSpecies(s) {
   delete s.nubKey;
   delete s.nameKey;
@@ -428,31 +355,32 @@ async function fetchSpeciesSynonymsGBIF(taxonKey) {
   return await getDataJSON(api);
 }
 
+// Construct a species portrait from a given GBIF species taxonKey
 async function buildSpeciesPortrait(taxonKey) {
-  console.time('fetchSpeciesGBIF');
+  console.time("fetchSpeciesGBIF");
   const species = await fetchSpeciesGBIF(taxonKey);
-  console.timeEnd('fetchSpeciesGBIF');
+  console.timeEnd("fetchSpeciesGBIF");
   truncateSpecies(species);
-  console.time('fetchInteractionData');
+  console.time("fetchInteractionData");
   const interactionData = await fetchInteractionData(species.species);
-  console.timeEnd('fetchInteractionData');
+  console.timeEnd("fetchInteractionData");
   const interactionSet = convertJsonToSet(interactionData);
-  console.time('fetchSpeciesNamesGBIF');
+  console.time("fetchSpeciesNamesGBIF");
   const names = await fetchSpeciesNamesGBIF(taxonKey);
-  console.timeEnd('fetchSpeciesNamesGBIF');
+  console.timeEnd("fetchSpeciesNamesGBIF");
   const engName = findName(names);
-  console.time('fetchRodlist');
+  console.time("fetchRodlist");
   var rodlist = await fetchRodlist(species.species);
-  console.timeEnd('fetchRodlist');
+  console.timeEnd("fetchRodlist");
   if (rodlist.data[0] === "no Data") {
     //If national Redlist uses cannonical name instead of species name
     rodlist = await fetchRodlist(species.canonicalName);
   }
   const rodlistClean = cleanRodlist(rodlist);
   truncateRodlist(rodlistClean);
-  console.time('fetchGithubPage');
+  console.time("fetchGithubPage");
   const narrative = await fetchGithubPage(taxonKey);
-  console.timeEnd('fetchGithubPage');
+  console.timeEnd("fetchGithubPage");
   const sp = {
     species: species,
     vernacularName: engName,
@@ -489,4 +417,59 @@ function createSetAndReplace(jsonArray) {
     });
   });
   return [...set];
+}
+
+// Convert a geoJSON polygon to a Well-Known-Text Polyogn
+function geoJSONToWKTPolygon(geoJSON) {
+  if (geoJSON.type !== "FeatureCollection") {
+    throw new Error("Input must be a GeoJSON FeatureCollection");
+  }
+  // Extract the first Polygon from the GeoJSON features
+  const polygon = geoJSON.features.find((feature) => {
+    if (feature.type !== "Feature") {
+      throw new Error("GeoJSON features must be Feature objects");
+    }
+    return feature.geometry.type === "Polygon";
+  });
+  if (!polygon) {
+    throw new Error("No Polygon found in the GeoJSON features");
+  }
+  // Convert the Polygon coordinates to WKT format
+  const wktPoints = polygon.geometry.coordinates[0]
+    .map((point) => `${point[0]} ${point[1]}`)
+    .join(",");
+  // Return the WKT Polygon string
+  return `POLYGON((${wktPoints}))`;
+}
+
+// Converts a GeoJSON to JTS (for testing self intersection)
+function geoJSON2JTS(boundaries) {
+  var coordinates = [];
+  for (var i = 0; i < boundaries.length; i++) {
+    coordinates.push(
+      new jsts.geom.Coordinate(boundaries[i][1], boundaries[i][0])
+    );
+  }
+  return coordinates;
+}
+
+// Tests a GeoJSON Polygon for self intersection
+function findSelfIntersects(geoJsonPolygon) {
+  var coordinates = geoJSON2JTS(geoJsonPolygon);
+  var geometryFactory = new jsts.geom.GeometryFactory();
+  var shell = geometryFactory.createLinearRing(coordinates);
+  var jstsPolygon = geometryFactory.createPolygon(shell);
+  var validator = new jsts.operation.IsSimpleOp(jstsPolygon);
+  if (validator.isSimpleLinearGeometry(jstsPolygon)) {
+    return;
+  }
+  var res = [];
+  var graph = new jsts.geomgraph.GeometryGraph(0, jstsPolygon);
+  var cat = new jsts.operation.valid.ConsistentAreaTester(graph);
+  var r = cat.isNodeConsistentArea();
+  if (!r) {
+    var pt = cat.getInvalidPoint();
+    res.push([pt.x, pt.y]);
+  }
+  return res;
 }
