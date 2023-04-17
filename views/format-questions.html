@@ -33,17 +33,26 @@
           </button>
           <div class="dropdown-content">
             <a href="map.html">Species Occurence</a>
-            <a href="map.html">Environment</a>
-            <a href="map.html">Terrain</a>
+            <a href="env.html">Environment</a>
           </div>
         </div>
         <a href="about.html">About</a>
-        <a href="javascript:void(0);" class="icon" onclick="myFunction()"
-          >&#9776;</a
-        >
+        <div class="dropdown">
+          <button class="dropbtn">
+            Utilities
+            <i class="fa fa-caret-down"></i>
+          </button>
+          <div class="dropdown-content">
+            <a href="format-questions.html">Species Narrative</a>
+            <a href="species-interactions.html">Species Interactions</a>
+            <a href="species-portrait.html">Species Portraits</a>
+            <a href="species-localspecies.json">National Species</a>
+            <a href="cytoscape-style.json">Interaction Style</a>
+          </div>
+        </div>
+        <a href="javascript:void(0);" class="icon" onclick="myFunction()">&#9776;</a>
       </div>
     </section>
-
     <h1>Species Narrative</h1>
     <p>A narrative is structured text information about a speices.</p>
     <p>Fill out the form below to generate a narrative JSON string.</p>
@@ -59,12 +68,8 @@
       <label for="country" class="required">Country:</label><br />
       <input type="text" id="country" name="country" /><br />
       <button type="button" onclick="formatQuestionsAnimal()">Generate Animal Questions</button>
-      
       <br />
       <br />
-    
-    
-    
     <p id="q0"></p>
     <div class="answer-fp" id="a0"></div><br />
     <p id="q1"></p>

@@ -1,0 +1,29 @@
+{
+  "name": "glitch-hello-node",
+  "version": "0.1.0",
+  "description": "A Node app built on fastify. Built to be remixed on Glitch.com.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/earthengine": "^0.1.349",
+    "express": "^4.18.2",
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "express-session": "^1.17.3",
+    "@google-cloud/storage": "^6.9.5"
+  },
+  "engines": {
+    "node": "14.x"
+  },
+  "repository": {
+    "url": "https://glitch.com/edit/#!/glitch-hello-node"
+  },
+  "license": "MIT",
+  "keywords": [
+    "node",
+    "glitch",
+    "lepidoptera"
+  ]
+}
