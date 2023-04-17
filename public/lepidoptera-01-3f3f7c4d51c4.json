@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "lepidoptera-01",
+  "private_key_id": "3f3f7c4d51c42db4b5c4b72df4eebd761b567a71",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCyIz2o6qMlb/e7\nEIyPq5ygt/c9xh7DOWq2I07rtMkKzEzghmMzzEe0mGzpaaeEho9WiqzkxMLbQCzg\nHJ6RtkmYd0/uMTgBAThGEBUl3j+nK8ycfcLUGFpYDuWFxCVX6GJooKo3p9IaoFwL\n3NWRoI3w2KVyppN34UnHnPIK4jK1ZEK8OKVwM+1OQ4TevLSyXEtZmAwPhMMn2d1s\ndsKkzytkI7m3AfoTri0fJ6M32FuDWlsrWQwybTpuA2r/33QXFUWAPUbQ6wLIybbw\n922FU5PjjXQjptTRavRp/AwqddcHLspNH2Vu5FEQaIV8/uBI9V76/ay+3RFPbctk\nM80H1FcjAgMBAAECggEAV5685/aNi88Qp6sCsHJFZspGKtTl8bmususYGRkB4DVQ\nRQnlBqfex0ZIH+EvnCCBpZwtYZMkkyp0SEHbfymN9pgNMUh1Vw0uDExB0rAIWCZT\njM/RAnj+Cx08qTiq85vit7r7Lsf1sNIapF0ZkXlLB+HQM14a4Bboru4UIeVT8uMN\nNKR72GgdbMp11n+yoEZ4MS1JiHhvdAf2A4GVzSYY4auHiHRoRIB/NkQ3tbDUxqQg\nyE+BCuzZafYPLJXjhBeY/j1IcLwl5HsXaouxbwWQ8m1CyCw0OuMCqdgB+R16Wacp\n5F6TtzUZdPvuaPdShj1VCuymzoZnNelrq8u0yRa6uQKBgQDdqj1H+hPCFaJIe2+l\nxhWsW3/FyKW/zJ5cyLbY06d88M+CzZaBqxAmG4uufOVBJGSL3cweRM7kXhUIARhl\nqVLIszvqIsK5dxh/EQb2aTmgrRWO4jSjFiJ6JlwOvsRjNdcQDLlUdKSRMNS1EVqP\niibid4j0ofggsWcC4hijeVr56QKBgQDNuv8dFIIlJ5SJTFd4/57oV/QkiwSTyCG2\nQd+Iv9768QI9esZJx9GM7jIDCKM3F3+2JgbuxkfmzXPhEv8LJB7pH/n7n1h9me/M\nbKelNXNobyQ/238YmYyoz47KO38LLcQyaTbttPLRf7xSJYcqf5GyDKkfqVG1pQ/J\nzhFr3sJVKwKBgQDHEkGw54VhE57H65tMTMZgIVhx3w4EX5aFi3iy5/qOOZKTTWFy\nmJeLMcfTb7VQOIfYGNxc/ryz2U6X/qvTeSqwtk8Dqi4o9C1ayIbxO3UWuPsYdEyD\nfrh97P9V+rtSwiKf9l1m3M6C2lDdQHWNXawoTOQBl4jIi6oQq88m2TD8KQKBgQDN\nZDSQPspT97kGfe4SgfmO80huN1BBjhuCDy/xIcWm+HiJEormXBSsQ54wgy4XsWEy\nY7KmLdTY6yMWgNWZtN0bV25GtOYut0G98HhKqxtmFxe0nRm9YIcafeWLp2yFp5Jp\n1bseBHoriABmbssMNcIqZRNv5aYK2Bj0G8Qu0n1ncwKBgClb3TdwxqzP+1iDRPwZ\nupC5smC4biUURyX0nEiwZnRSDwSolM4RGETYka7udpsj6HLndYHMLzVVmK+LLyX0\nxWkuiGZ9iuMZ3jlfIShUDjI0IRILFTTTk9wgvBVXHSmx4EGYzRJBN7ha+vLY223g\n2SkAs0vmx3M0D6SP5E5UL58P\n-----END PRIVATE KEY-----\n",
+  "client_email": "service-01@lepidoptera-01.iam.gserviceaccount.com",
+  "client_id": "117900934518121811125",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/service-01%40lepidoptera-01.iam.gserviceaccount.com"
+}

@@ -1,6 +1,5 @@
 // Initialize Mapbox Map
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYXRzbWl0aGFyYyIsImEiOiJjbGJ5eGx0MXEwOXh2M3BtejBvNmUzM3VpIn0.6cxXNEwIUQeui42i9lbHEg";
+mapboxgl.accessToken = "pk.eyJ1IjoiYXRzbWl0aGFyYyIsImEiOiJjbGJ5eGx0MXEwOXh2M3BtejBvNmUzM3VpIn0.6cxXNEwIUQeui42i9lbHEg";
 const map = new mapboxgl.Map({
   container: "map",
   style: "mapbox://styles/mapbox/dark-v11",
@@ -123,54 +122,23 @@ map.on("load", () => {
   map.on("draw.delete", updateSearchEnvironment);
   map.on("draw.update", updateSearchEnvironment);
 
-  async function ee_authenticate{
-   debug.innerHTML = `<p> Authenticating Earth Engine... </p>`
-   // Require client library and private key.
-   var ee = require('@google/earthengine');
-   var privateKey = require('./.private-key.json');
-   // Initialize client library and run analysis.
-   var runAnalysis = function() {
-    ee.initialize(null, null, function() {
-     // ... run analysis ...
-    }, function(e) {
-      console.error('Initialization error: ' + e);
-     });
-    };
-    // Authenticate using a service account.
-    ee.data.authenticateViaPrivateKey(privateKey, runAnalysis, function(e) {
-      debug.innerHTML = `<p> Authentication error. </p>`
-      console.error('Authentication error: ' + e);
-   }); 
-  }
   
+
   // Fetch Data from Google Earth Engine fo a given geoJSON polygon
-  async function fetchEarthEngineData(geoJSONpoly) {
-  debug.innerHTML = `<p> ${JSON.stringify(geoJSONpoly)} </p>`
-  /*
-  ee_date_start: ee.Date = ee.Date('2022-08-01')
-  ee_date_end: ee.Date = ee.Date('2022-08-30')
-  ee_bbox: ee.Geometry = ee.Geometry.BBox(west, south, east, north)
-  ee_bbox_poly: ee.Geometry = ee.Geometry.Polygon(ee_bbox._coordinates)
-  ee_bbox_poly_crs: ee.Geometry = ee.Geometry.Polygon(ee_bbox._coordinates, proj='EPSG:25832')
-  ee_filter_s2:ee.Filter = ee.Filter.And(ee.Filter.bounds(ee_bbox),ee.Filter.date(ee_date_start, ee_date_end), ee.Filter.lt('CLOUDY_PIXEL_PERCENTAGE', 35)) 
-  ee_imgc_s2: ee.ImageCollection = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED').filter(ee_filter_s2)\
-      .select(['B1','B2','B3','B4','B5','B6','B7','B8','B8A','B9','B11','B12','AOT','WVP','SCL','TCI_R','TCI_G','TCI_B'])
-  ee_img_s2: ee.Image = ee.Image(ee_imgc_s2.first())
-  ee_img_s2_index = ee_img_s2.get('system:index')
-  ee_filter_dw: ee.Filter = ee.Filter.eq('system:index', ee_img_s2_index)
-  ee_imgc_dw: ee.ImageCollection = ee.ImageCollection('GOOGLE/DYNAMICWORLD/V1').filter(ee_filter_dw)
-  ee_img_dw: ee.Image = ee.Image(ee_imgc_dw.first())
-  ee_img_compile_1: ee.Image = ee_img_s2.addBands(srcImg=ee_img_dw, overwrite=False)
-  ee_img_evi: ee.Image = getEVI(ee_img_s2).select('EVI')
-  ee_img_normdiff: ee.Image = ee_img_s2.normalizedDifference(['B8','B4'])
-  ee_img_ndvi: ee.Image = ee_img_normdiff.rename(['NDVI'])
-  ee_img_compile_2: ee.Image = ee_img_compile_1.addBands(srcImg=ee_img_evi,overwrite=True)
-  ee_img_compile_3: ee.Image = ee_img_compile_2.addBands(srcImg=ee_img_ndvi,overwrite=False)
-  ee_img_coords: ee.Image = ee_img_compile_3.pixelCoordinates('EPSG:25832')
-  ee_img_compile_4: ee.Image = ee_img_compile_3.addBands(srcImg=ee_img_coords,overwrite=False)
-  ee_fc_compile: ee.FeatureCollection = ee_img_compile_4.sample(region=ee_bbox_poly,scale=10,projection='EPSG:25832',geometries=True)
-  ee_fc_compile_coords: ee.FeatureCollection = ee_fc_compile.map(projCoord)
-  */
+  async function fetchEarthEngineData(geoJSONcoords) {
+    console.log(`Sending to server [${geoJSONcoords}]`)
+   $.ajax({
+    url: '/getEEData',
+    type: 'POST',
+    contentType: 'application/json',
+    data: JSON.stringify(geoJSONcoords),
+    success: function(response) {
+      console.log(`Client: My Response was ${JSON.stringify(response)}`);
+    },
+    error: function(error) {
+      console.log(`Client: My Error was ${JSON.stringify(error)}`);
+    }
+  });
   }
 
   // Update Polygon Search Results (invoked when a polygon is created, edited, or deleted)
@@ -189,27 +157,10 @@ map.on("load", () => {
           draw.deleteAll();
           return;
         }
-        const eeData = await fetchEarthEngineData(geoJSONpoly);
         let lastPolygon = geoJSONpoly;
-        if (map.getSource("eeData") == undefined) {
-          map.addSource("eeData", {
-            type: "geojson", //  ?
-            data: eeData,
-          });
-        } else {
-          map.getSource("eeData").setData(eeData);
-        }
-        if (map.getLayer("eeDataLayer") == undefined) {
-          map.addLayer({
-            id: "eeDataLayer",
-            type: "circle",
-            source: "eeData",
-            paint: {
-              "circle-radius": 0,
-              "circle-stroke-width": 0,
-            },
-          });
-        }
+        const coordinatesPoly = geoJSONpoly.features[0].geometry.coordinates;
+        const eeData = await fetchEarthEngineData(coordinatesPoly);
+        debug.innerHTML = `${JSON.stringify(coordinatesPoly)}`;
         draw.deleteAll();
         $(".lds-grid").hide();
       }
