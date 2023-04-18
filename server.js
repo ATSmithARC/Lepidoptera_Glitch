@@ -3,10 +3,15 @@ const app = express();
 const cookieParser = require("cookie-parser");
 const session = require("express-session");
 const bodyParser = require("body-parser");
+const privateKey = require(__dirname + '/eeKey.json');
 const ee = require("@google/earthengine");
-const privateKey = process.env.EE_SERVICE_KEY;
 
-authenticate(ee);
+async function auth() {
+await ee.data.authenticateViaPrivateKey(privateKey);
+await ee.initialize();
+}
+
+auth();
 
 // Get Middleware
 app.use(express.static("public"));
@@ -69,22 +74,19 @@ const listener = app.listen(process.env.PORT, function () {
     console.log("Your app is listening on port " + listener.address().port);
 });
 // POST request handling
-app.post("/getEEData", (req, res) => {
+app.post("/getEEData", async (req, res) => {
     console.log('Server: Analysis Request Recieved...')
-    const response = runAnalysis(req.body, req.sessionID);
+    const filenamePrefix = `${req.sessionID}_Compiled`;
+    runAnalysis(req.body, filenamePrefix);
+    console.log(`Server: Fetching Data from Cloud...`);
+    const response = await downloadIntoMemoryJSON(filenamePrefix);
     console.log('Server: Sending Response...')
     res.json({ eeData: response });
 });
 
 // Server Functions
-//Authenticate Earth Engine
-async function authenticate(ee) {
-    await ee.data.authenticateViaPrivateKey(privateKey);
-    await ee.initialize();
-}
-
 // Run primary Earth Engine Computations
-function runAnalysis(coordinates, sessionID) {
+function runAnalysis(coordinates, filenamePrefix) {
     // Get Start and End Dates for Dataset
     //const ee_projection_crs = ee.Projection('EPSG:3857');
     const ee_date_start = ee.Date({ date: "2022-08-01" });
@@ -163,34 +165,16 @@ function runAnalysis(coordinates, sessionID) {
         //projection: ee_projection_crs,
         geometries: true,
     });
-    //const ee_fc_compile_coords = ee_fc_compile.map(ee, projCoord);
-    //const ee_img_compile_3_viz = ee_image_compile_3.visualize({'bands': ['B4', 'B3', 'B2'],'min': 0, 'max': 4000});
-    const filenamePrefix = `${sessionID}_Compiled`;
-    const ee_task_exportcsv = ee.batch.Export.table.toCloudStorage({
+    const ee_task_exportJSON = ee.batch.Export.table.toCloudStorage({
         collection: ee_featureCollection_compile,
-        description: `GeoJSON Pixel Data for Session:${sessionID}`,
+        description: `GeoJSON Pixel Data for Session`,
         bucket: "environment-data-requests-0",
         fileNamePrefix: filenamePrefix,
         fileFormat: "GeoJSON",
     });
-    ee_task_exportcsv.start();
-    console.log(`Server: Exporting Data to Cloud...`);
-    console.log(`Server: Fetching Data from Cloud...`);
-    const responseData = downloadIntoMemoryJSON(filenamePrefix);
-    return responseData;
+    ee_task_exportJSON.start();
+    console.log(`Server: Export to Cloud Storage Started...`);
 }
-
-/*
-// Logs Init errors to console
-function logAnalysisErrors(e) {
-    console.error("Initialization error: " + e);
-}
-
-// Logs Auth Errors to Console
-function logAuthErrors(e) {
-    console.error("Authentication error: " + e);
-}
-*/
 
 // Computes the EVI on a given Sentinal 2 Image
 function getEVI(ee_image) {
@@ -206,17 +190,16 @@ function getEVI(ee_image) {
 }
 
 // Retrieve Data from Cloud Bucket
-function downloadIntoMemoryJSON(fileNamePrefix) {
-    const filename = `${fileNamePrefix}.json`;
+async function downloadIntoMemoryJSON(fileNamePrefix) {
+    const filename = `${fileNamePrefix}.geojson`;
     const bucketName = "environment-data-requests-0";
     const { Storage } = require("@google-cloud/storage");
     const storage = new Storage({
-      projectId:'myProjectID',
+      projectId:'lepidoptera-01',
       credentials: privateKey, 
     });
-    const contents = downloadIntoMemory(storage, bucketName, filename).catch(
-        console.error
-    );
+  
+    const contents = await downloadIntoMemory(storage, bucketName, filename).catch(console.error);
     process.on("unhandledRejection", (err) => {
         console.error(err.message);
         process.exitCode = 1;
@@ -224,12 +207,17 @@ function downloadIntoMemoryJSON(fileNamePrefix) {
     return contents;
 }
 
-// Async Download Data
+// Download the EE geojson Data from the bucket once it exists
 async function downloadIntoMemory(storage, bucketName, fileName) {
-    // Downloads the file into a buffer in memory.
-    const contents = await storage.bucket(bucketName).file(fileName).download();
-    console.log(
-        `Server: Contents of gs://${bucketName}/${fileName} Recieved.`
-    );
+  const file = storage.bucket(bucketName).file(fileName);
+    let exists = await file.exists().then(function(data) { return data[0]; });
+    while (!exists) {
+        console.log(`Server: File [${bucketName}/${fileName}] does not exist yet...`);
+        await new Promise(resolve => setTimeout(resolve, 5000)); // wait for 5 seconds
+        exists = await file.exists().then(function(data) { return data[0]; });
+    }
+    console.log('Server: File exists.');
+    const contents = await file.download();
+    console.log('Server: Contents Downloaded.');
     return contents;
 }
