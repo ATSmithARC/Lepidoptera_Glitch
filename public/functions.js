@@ -473,3 +473,253 @@ function findSelfIntersects(geoJsonPolygon) {
   }
   return res;
 }
+
+// Fetch Data from Google Earth Engine fo a given geoJSON polygon
+  async function fetchEarthEngineData(geoJSONcoords) {
+    $(".lds-grid").show();
+    console.log(`Sending to server [${geoJSONcoords}]`);
+    debug.innerHTML = `Server: Fetching Environment Data...`;
+    $.ajax({
+      url: "/getEEData",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(geoJSONcoords),
+      success: function (response) {
+        console.log(`Client: My Response was Recieved.`);
+        //debug.innerHTML = `${JSON.stringify(response)}`;
+        map.addSource("pixels", {
+          type: "geojson",
+          data: response.eeData,
+        });
+        addMapboxLayers();
+      },
+      error: function (error) {
+        console.log(`Client: My Error was ${JSON.stringify(error)}`);
+      },
+    });
+  }
+
+function addMapboxLayers() {
+  const toggleableLayerIds = [];
+  const backgroundColor = "transparent"
+  //NDVI
+  toggleableLayerIds.push('NDVI');
+  map.addLayer({
+    id: "NDVI",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'visible'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "NDVI"],
+        0,
+        backgroundColor,
+        0.25,
+        "#ffffbf",
+        0.5,
+        "#d9ef8b",
+        1,
+        "#a6d96a",],
+    },
+  });
+  //Land-Coverage
+  toggleableLayerIds.push('Land-Coverage');
+  map.addLayer({
+    id: "Land-Coverage",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ['match',['get', 'label'],
+        0,
+        '#409cdf',//water
+        1,
+        '#397e48',//trees
+        2,
+        '#89b053',//grass
+        3,
+        '#7987c6',//flooded_vegitation
+        4,
+        '#e49536',//crops
+        5,
+        '#dfc25a',//shrub_and_scrub
+        6,
+        '#c52821',//built
+        7,
+        '#a59b87',//bare
+        8,
+        '#b49fe2',//snow_and_ice
+        /* other */ '#ccc'],
+    },
+  });
+  //Water
+  toggleableLayerIds.push('Water');
+  map.addLayer({
+    id: "Water",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "water"],
+        0,
+        backgroundColor,
+        1,
+        "#409cdf",],
+    },
+  });
+  //Trees
+  toggleableLayerIds.push('Trees');
+  map.addLayer({
+    id: "Trees",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "trees"],
+        0,
+        backgroundColor,
+        1,
+        "#397e48",],
+    },
+  });
+  //Grass
+  toggleableLayerIds.push('Grass');
+  map.addLayer({
+    id: "Grass",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "grass"],
+        0,
+        backgroundColor,
+        1,
+        "#89b053",],
+    },
+  });
+  //Flooded-Vegitation
+  toggleableLayerIds.push('Flooded-Vegetation');
+  map.addLayer({
+    id: "Flooded-Vegetation",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "flooded_vegetation"],
+        0,
+        backgroundColor,
+        1,
+        "#7987c6",],
+    },
+  });
+  //Crops
+  toggleableLayerIds.push('Crops');
+  map.addLayer({
+    id: "Crops",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "crops"],
+        0,
+        backgroundColor,
+        1,
+        "#e49536",],
+    },
+  });
+  //Shrub-and-Scrub
+  toggleableLayerIds.push('Shrub-and-Scrub');
+  map.addLayer({
+    id: "Shrub-and-Scrub",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "shrub_and_scrub"],
+        0,
+        backgroundColor,
+        1,
+        "#dfc25a",],
+    },
+  });
+  //Build
+  toggleableLayerIds.push('Built');
+  map.addLayer({
+    id: "Built",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "built"],
+        0,
+        backgroundColor,
+        1,
+        "#c52821",],
+    },
+  });
+  //Bare
+  toggleableLayerIds.push('Bare');
+  map.addLayer({
+    id: "Bare",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "bare"],
+        0,
+        backgroundColor,
+        1,
+        "#a59b87",],
+    },
+  });
+  //Snow-and-Ice
+  toggleableLayerIds.push('Snow-and-Ice');
+  map.addLayer({
+    id: "Snow-and-Ice",
+    type: "circle",
+    source: "pixels",
+    layout: {'visibility':'none'},
+    paint: {
+      "circle-color": ["interpolate",["linear"],["get", "snow_and_ice"],
+        0,
+        backgroundColor,
+        1,
+        "#b49fe2",],
+    },
+  });
+    // Set up the corresponding toggle button for each layer.
+    for (const id of toggleableLayerIds) {
+        // Create a link.
+        const link = document.createElement('a');
+        link.id = id;
+        link.href = '#';
+        link.textContent = id;
+        if (id === "NDVI"){ link.className = 'active'; }
+        // Show or hide layer when the toggle is clicked.
+        link.onclick = function (e) {
+            const clickedLayer = this.textContent;
+            e.preventDefault();
+            e.stopPropagation();
+
+            const visibility = map.getLayoutProperty(
+                clickedLayer,
+                'visibility'
+            );
+            // Toggle layer visibility by changing the layout object's visibility property.
+            if (visibility === 'visible') {
+                map.setLayoutProperty(clickedLayer, 'visibility', 'none');
+                this.className = '';
+            } else {
+                this.className = 'active';
+                map.setLayoutProperty(
+                    clickedLayer,
+                    'visibility',
+                    'visible'
+                );
+            }
+        };
+        const layers = document.getElementById('layer-menu');
+        layers.appendChild(link);
+    }
+  $(".lds-grid").hide();
+  debug.innerHTML = "";
+}

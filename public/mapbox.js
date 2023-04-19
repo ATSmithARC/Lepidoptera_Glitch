@@ -9,6 +9,16 @@ const map = new mapboxgl.Map({
   antialias: true,
 });
 
+// Change Mapbox Map Style by using the style menu buttons
+const layerList = document.getElementById("style-menu");
+const inputs = layerList.getElementsByTagName("input");
+for (const input of inputs) {
+  input.onclick = (layer) => {
+    const layerId = layer.target.id;
+    map.setStyle("mapbox://styles/mapbox/" + layerId);
+  };
+}
+
 // Create default popup, but don't add it to the map.
 const popupOffsets = {
   bottom: [0, -10],
@@ -35,6 +45,8 @@ const debug = document.getElementById("debug-text");
 var lastPOIClicked = "";
 let airports = [];
 const lastPolygon = {};
+const occurenceData = {};
+const eeData = {};
 
 // Returns a (Species Occurence) DOM Popup when invoked
 function poiPopup(f) {
@@ -211,7 +223,7 @@ function writeJson(exportObj, exportName) {
 }
 
 // Download data
-async function downloadGBI(occurences, region) {
+async function downloadGBI(occurences, region, eePixelData) {
   const speciesPortraits = [];
   const uniqueTaxons = getUniqueTaxonKeys(occurences);
   let i = 0;
@@ -227,10 +239,16 @@ async function downloadGBI(occurences, region) {
     const interactors = createSetAndReplace(speciesPortraits);
     debug.innerHTML = `<p>Compiling Climate Data... </p>`;
     const climate = await fetchEpw("DNK_Copenhagen.061800_IWEC_EPW.json");
-    const gbi = { region, occurences, speciesPortraits, interactors, climate };
-    //debug.innerHTML = `<p> ${JSON.stringify(gbi)} </p>`
+    const gbi = {
+      region,
+      occurences,
+      speciesPortraits,
+      interactors,
+      climate,
+      eePixelData,
+    };
     debug.innerHTML = ``;
-    writeJson(gbi, "exportName");
+    writeJson(gbi, `${map.getCenter()}`);
   } else if (length >= upperLimit) {
     debug.innerHTML = `<p> Error: Too many Species Selected[${length}]. Limit = 100</p>`;
   }
@@ -240,7 +258,6 @@ async function downloadGBI(occurences, region) {
 map.on("load", () => {
   // Set Map Parameters
   map.boxZoom.disable();
-
   // Add Data Sources
   // All GBIF Species Occurences
   map.addSource("maps-occurences", {
@@ -411,14 +428,14 @@ map.on("load", () => {
   map.on("draw.update", updateSearch);
 
   /*
-    // Removes POIs if trash button is clicked
-    const btn = document.querySelector(
-      ".mapbox-gl-draw_ctrl-draw-btn mapbox-gl-draw_trash"
-    );
-    btn.addEventListener("click", () => {
-      console.log("hello world");
-    });
-    */
+      // Removes POIs if trash button is clicked
+      const btn = document.querySelector(
+        ".mapbox-gl-draw_ctrl-draw-btn mapbox-gl-draw_trash"
+      );
+      btn.addEventListener("click", () => {
+        console.log("hello world");
+      });
+      */
 
   // Reset features filter as the map starts moving
   map.on("movestart", () => {
@@ -728,7 +745,10 @@ map.on("load", () => {
           draw.deleteAll();
           return;
         }
+        const coordinatesPoly = geoJSONpoly.features[0].geometry.coordinates;
+        fetchEarthEngineData(coordinatesPoly);
         const gbifGeoJSON = await pageRequest(geoJSONpoly);
+        occurenceData.data = gbifGeoJSON; 
         let lastPolygon = geoJSONpoly;
         if (map.getSource("airports") == undefined) {
           map.addSource("airports", {
@@ -751,7 +771,7 @@ map.on("load", () => {
         }
         draw.deleteAll();
         $(".lds-grid").hide();
-
+        document.getElementById("title-filters").innerHTML = "Kingdom Filters"
         // Create Mapbox Layers and DOM elements to filter them for each species' kingdom
         for (const feature of gbifGeoJSON.features) {
           const symbol = feature.properties.kingdom;
@@ -792,17 +812,16 @@ map.on("load", () => {
 
         // Add Button to View All Interactions Network
         if (!functionGroup.contains(document.getElementById("interactions"))) {
+          document.getElementById("title-functions").innerHTML = "Functions"
           const interactions = document.createElement("input");
           interactions.type = "checkbox";
           interactions.id = "interactions";
           interactions.checked = false;
           functionGroup.appendChild(interactions);
-
           const interactionsLabel = document.createElement("label");
           interactionsLabel.setAttribute("for", "interactions");
           interactionsLabel.textContent = "Species Interactions";
           functionGroup.appendChild(interactionsLabel);
-
           interactions.addEventListener("change", (e) => {
             const cyOverlay = document.getElementById("cy-overlay");
             if (e.target.checked) {
@@ -813,24 +832,32 @@ map.on("load", () => {
             initCytoscapeOverlay();
           });
         }
-
-        // Add Button to Download data as .gbi
-        if (!functionGroup.contains(document.getElementById("map-download"))) {
-          const download = document.createElement("input");
-          download.type = "checkbox";
-          download.id = "map-download";
-          download.checked = false;
-          functionGroup.appendChild(download);
-
-          const downloadLabel = document.createElement("label");
-          downloadLabel.setAttribute("for", "map-download");
-          downloadLabel.textContent = `Download Data`;
-          functionGroup.appendChild(downloadLabel);
-
-          download.addEventListener("change", (e) => {
-            downloadGBI(gbifGeoJSON, lastPolygon);
-          });
-        }
+      }
+    }
+  }
+});
+// Add Button to Download data as .gbi once all sources are loaded
+map.on("sourcedata", function (e) {
+  //if EE pixel data is loaded
+  if (map.getSource("pixels") && map.isSourceLoaded("pixels")) {
+    eeData.pixels = map.querySourceFeatures("pixels");
+    // if features are loaded
+    if (map.getSource("airports") && map.isSourceLoaded("airports")) {
+      // load download button to DOM
+      if (!functionGroup.contains(document.getElementById("map-download"))) {
+        document.getElementById("title-layers").innerHTML = "Environment Layers"
+        const download = document.createElement("input");
+        download.type = "checkbox";
+        download.id = "map-download";
+        download.checked = false;
+        functionGroup.appendChild(download);
+        const downloadLabel = document.createElement("label");
+        downloadLabel.setAttribute("for", "map-download");
+        downloadLabel.textContent = `Download Data`;
+        functionGroup.appendChild(downloadLabel);
+        download.addEventListener("change", (e) => {
+          downloadGBI(occurenceData.data, lastPolygon, eeData.pixels);
+        });
       }
     }
   }
