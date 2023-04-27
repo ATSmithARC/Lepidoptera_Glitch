@@ -5,12 +5,11 @@ const session = require("express-session");
 const bodyParser = require("body-parser");
 const privateKey = require(__dirname + '/eeKey.json');
 const ee = require("@google/earthengine");
-
+const shortid = require('shortid');
 async function auth() {
 await ee.data.authenticateViaPrivateKey(privateKey);
 await ee.initialize();
 }
-
 auth();
 
 // Get Middleware
@@ -76,7 +75,7 @@ const listener = app.listen(process.env.PORT, function () {
 // POST request handling
 app.post("/getEEData", async (req, res) => {
     console.log('Server: Analysis Request Recieved...')
-    const filenamePrefix = `${req.sessionID}_Compiled`;
+    const filenamePrefix = `${req.sessionID}_${shortid.generate()}`;
     runAnalysis(req.body, filenamePrefix);
     console.log(`Server: Fetching Data from Cloud...`);
     const response = await downloadIntoMemoryJSON(filenamePrefix);
@@ -88,14 +87,14 @@ app.post("/getEEData", async (req, res) => {
 // Run primary Earth Engine Computations
 function runAnalysis(coordinates, filenamePrefix) {
     // Get Start and End Dates for Dataset
-    //const ee_projection_crs = ee.Projection('EPSG:3857');
+    const ee_date_pop_start = ee.Date({ date: "2000-01-01" });
+    const ee_date_pop_end = ee.Date({ date: "2020-01-01" });
     const ee_date_start = ee.Date({ date: "2022-08-01" });
     const ee_date_end = ee.Date({ date: "2022-08-30" });
     // Construct a bounding polygon from the users client side search polygon coordinates
     const ee_search_poly = ee.Geometry({
         type: "Polygon",
         coordinates: coordinates,
-        //proj: ee_projection_crs,
     });
     // Construst a filter to return data only within the dates, bounding polygon, and with <35% cloud cover
     const ee_filter_s2 = ee.Filter.and(
@@ -103,25 +102,36 @@ function runAnalysis(coordinates, filenamePrefix) {
         ee.Filter.date(ee_date_start, ee_date_end),
         ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", 35)
     );
+    const ee_filter_pop_start = ee.Filter.and(
+        ee.Filter.bounds(ee_search_poly),
+        ee.Filter.date(ee_date_pop_start)
+    );
+    const ee_filter_pop_end = ee.Filter.and(
+        ee.Filter.bounds(ee_search_poly),
+        ee.Filter.date(ee_date_pop_end)
+    );
+    const ee_imageCollection_pop_start = ee
+        .ImageCollection("CIESIN/GPWv411/GPW_UNWPP-Adjusted_Population_Density")
+        .filter(ee_filter_pop_start)
+        .select("unwpp-adjusted_population_density");
+    const ee_imageCollection_pop_end = ee
+        .ImageCollection("CIESIN/GPWv411/GPW_UNWPP-Adjusted_Population_Density")
+        .filter(ee_filter_pop_end)
+        .select("unwpp-adjusted_population_density");
+    const ee_image_pop_start = ee.Image(ee_imageCollection_pop_start.first());
+    const ee_image_pop_end = ee.Image(ee_imageCollection_pop_end.first());
     // Construct image collection with filter, and with only 'selected' bands
     const ee_imageCollection_s2 = ee
         .ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
         .filter(ee_filter_s2)
         .select([
-            "B1",
             "B2",
-            "B3",
             "B4",
             "B5",
             "B6",
             "B7",
             "B8",
-            "B8A",
             "B9",
-            "B11",
-            "B12",
-            "AOT",
-            "WVP",
             "SCL",
             "TCI_R",
             "TCI_G",
@@ -158,11 +168,19 @@ function runAnalysis(coordinates, filenamePrefix) {
         srcImg: ee_image_ndvi,
         overwrite: false,
     });
+    // Add Pop. Bands
+    const ee_image_compile_4 = ee_image_compile_3.addBands({
+        srcImg: ee_image_pop_start,
+        overwrite: false,
+    });
+    const ee_image_compile_5 = ee_image_compile_4.addBands({
+        srcImg: ee_image_pop_end,
+        overwrite: false,
+    });
     // Retrieve Data from Google as a sample
-    const ee_featureCollection_compile = ee_image_compile_3.sample({
+    const ee_featureCollection_compile = ee_image_compile_5.sample({
         region: ee_search_poly,
         scale: 10,
-        //projection: ee_projection_crs,
         geometries: true,
     });
     const ee_task_exportJSON = ee.batch.Export.table.toCloudStorage({
@@ -217,7 +235,7 @@ async function downloadIntoMemory(storage, bucketName, fileName) {
         exists = await file.exists().then(function(data) { return data[0]; });
     }
     console.log('Server: File exists.');
-    const contents = await file.download();
+    const buffer = await file.download();
     console.log('Server: Contents Downloaded.');
-    return contents;
+    return JSON.parse(buffer.toString());
 }

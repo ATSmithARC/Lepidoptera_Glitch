@@ -24,14 +24,16 @@
           window.location.href.substring(window.location.protocol.length);
       }
     </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsts/2.0.5/jsts.js" type="text/javascript"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jsts/2.0.5/jsts.js"
+      type="text/javascript"
+    ></script>
     <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
     <script src="https://unpkg.com/mapbox-gl-draw-waypoint@1.0.3/dist/mapbox-gl-draw-waypoint.min.js"></script>
     <script src="nav-ui.js"></script>
     <title>Lepidoptera Map</title>
   </head>
-
-  <body>
+  <body style="overflow-x: clip; overflow-y: clip;"> 
     <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
     <div class="topnav" id="myTopnav">
@@ -52,18 +54,18 @@
       </div>
       <a href="about.html">About</a>
       <div class="dropdown">
-          <button class="dropbtn">
-            Utilities
-            <i class="fa fa-caret-down"></i>
-          </button>
-          <div class="dropdown-content">
-            <a href="format-questions.html">Species Narrative</a>
-            <a href="species-interactions.html">Species Interactions</a>
-            <a href="species-portrait.html">Species Portraits</a>
-            <a href="species-localspecies.json">National Species</a>
-            <a href="cytoscape-style.json">Interaction Style</a>
-          </div>
+        <button class="dropbtn">
+          Utilities
+          <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-content">
+          <a href="format-questions.html">Species Narrative</a>
+          <a href="species-interactions.html">Species Interactions</a>
+          <a href="species-portrait.html">Species Portraits</a>
+          <a href="species-localspecies.json">National Species</a>
+          <a href="cytoscape-style.json">Interaction Style</a>
         </div>
+      </div>
       <a href="javascript:void(0);" class="icon" onclick="myFunction()"
         >&#9776;</a
       >
@@ -75,27 +77,40 @@
       href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.2.2/mapbox-gl-draw.css"
       type="text/css"
     />
-
     <div id="main">
       <button class="openbtn" onclick="openNav()">></button>
       <div id="map">
+        <div id="debug-text"></div>
+        <div id="style-menu">
+          <input id="streets-v12" type="radio" name="rtoggle" value="streets"  checked="checked"/>
+          <label for="streets-v12">Streets</label>
+          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="satellite"/>
+          <label for="satellite-v9">Satellite</label>
+          <input id="light-v11" type="radio" name="rtoggle" value="light" />
+          <label for="light-v11">Light</label>
+          <input id="dark-v11" type="radio" name="rtoggle" value="dark" />
+          <label for="dark-v11">Dark</label>
+          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors" />
+          <label for="outdoors-v12">Outdoors</label>
+        </div>
         <div id="cy-overlay"></div>
       </div>
-      <div id="debug-text"></div>
       <div id="how-to" class="overlay">
         <div class="how-to">
           <h2>About Map:</h2>
           <a class="close" href="#how-to">×</a>
           <div class="popupcontent">
-            Green dots indicate 
+            Green dots indicate
             <a href="https://www.gbif.org/dataset-classes#occurrences"
               >Species Occurences</a
             >
             <br />
             Red dots indicate
-            <a style="color:red;text-decoration: underline;"href="https://www.iucnredlist.org/assessment/process"
+            <a
+              style="color: red; text-decoration: underline"
+              href="https://www.iucnredlist.org/assessment/process"
               >EU Threatened Species</a
-            ><br/>
+            ><br />
             <br />
             To get occurence details: <br />
             <br />
@@ -125,18 +140,22 @@
     <div id="mySidebar" class="sidebar">
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()"><</a>
       <h2>Tools</h2>
-      <nav id="filter-group" class="filter-group"></nav>
-      <nav id="function-group" class="function-group"></nav>
       <div class="result-filter">
-          <input
-            id="feature-filter"
-            type="text"
-            placeholder="Filter visible results by name..."
-          />
+        <input
+          id="feature-filter"
+          type="text"
+          placeholder="Filter occurences by name..."
+        />
         <div id="feature-listing" class="listing"></div>
       </div>
+      <p id="title-filters"></p>
+      <nav id="filter-group" class="filter-group"></nav>
+      <p id="title-functions"></p>
+      <nav id="function-group" class="function-group"></nav>
+      <p id="title-layers"></p>
+      <nav id="layer-menu"></nav>
     </div>
-    
+
     <script type="text/javascript" src="functions.js"></script>
     <script type="text/javascript" src="mapbox.js"></script>
   </body>
