@@ -10,7 +10,6 @@ async function auth() {
 await ee.data.authenticateViaPrivateKey(privateKey);
 await ee.initialize();
 }
-
 auth();
 
 // Get Middleware
