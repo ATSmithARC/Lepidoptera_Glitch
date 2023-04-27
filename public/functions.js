@@ -468,7 +468,7 @@ function findSelfIntersects(geoJsonPolygon) {
 async function fetchEarthEngineData(geoJSONcoords) {
     $(".lds-grid").show();
     console.log(`Sending to server [${geoJSONcoords}]`);
-    debug.innerHTML = `Server: Fetching Environment Data...`;
+    debug.innerHTML = `Server: Fetching Earth Engine data in the background...`;
     $.ajax({
         url: "/getEEData",
         type: "POST",
@@ -509,6 +509,61 @@ function addMapboxLayers() {
                 "#d9ef8b",
                 1,
                 "#a6d96a",],
+        },
+    });
+    //EVI
+      toggleableLayerIds.push('EVI');
+      map.addLayer({
+          id: "EVI",
+          type: "circle",
+          source: "pixels",
+          layout: { 'visibility': 'none' },
+          paint: {
+              "circle-color": ["interpolate", ["linear"], ["get", "EVI"],
+                  0,
+                  backgroundColor,
+                  0.25,
+                  "#ffffbf",
+                  0.5,
+                  "#d9ef8b",
+                  1,
+                  "#a6d96a",],
+          },
+      });
+    //SCL
+    toggleableLayerIds.push('SCL');
+    map.addLayer({
+        id: "SCL",
+        type: "circle",
+        source: "pixels",
+        layout: { 'visibility': 'none' },
+        paint: {
+            "circle-color": ['match', ['get', 'SCL'],
+                0,
+                backgroundColor,//no data
+                1,
+                '#ff0004',//saturated or defective
+                2,
+                '#868686',//dark area pixels
+                3,
+                '#774b0a',//cloud shadows
+                4,
+                '#10d22c',//vegitation
+                5,
+                '#ffff52',//bare soils
+                6,
+                '#0000ff',//water
+                7,
+                '#818181',//clouds low prob.
+                8,
+                '#c0c0c0',//clouds med prob.
+                9,
+                '#f1f1f1',//clouds high prob.
+                10,
+                '#bac5eb',//clouds cirrus.
+                11,
+                '#52fff9',//snow or ice
+          /* other */ '#ccc'],
         },
     });
     //Land-Coverage
@@ -712,7 +767,7 @@ function addMapboxLayers() {
         }
     }
     $(".lds-grid").hide();
-    debug.innerHTML = "";
+    debug.innerHTML = "Ready to Download!";
 }
 
 // Delay 
