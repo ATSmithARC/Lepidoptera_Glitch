@@ -1,15 +1,15 @@
 BUGS
-Changing styles resets map layers
-Cant make multiple queries in the same session
-Map occurence search doesnt work
+Tapping on a search result on mobile can expand the map div out from topnav
+
 
 FEATURES
-Trash button should clear all symbols from the map
-Occurences should be colored based on citizen/vs non-citizen science
-Delete Entry From Google Cloud after download, or 24hrs
-Add Direct Interactions Function
+Need to add trash() function to reset everything on trash button press
+Add animation button for slider
+Delete Entry From Google Cloud after download, or 24hrs?
+Add Direct (Degree 1) Interactions Function
 
 UI
+Swiping left should close nav bar on mobile
 
 WEBSITE
-Add Slides to About Page
+Add Accounts (could enable save to google drive)
