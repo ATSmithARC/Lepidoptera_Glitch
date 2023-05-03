@@ -1,6 +1,7 @@
 // Initialize Mapbox Map
 mapboxgl.accessToken =
     "pk.eyJ1IjoiYXRzbWl0aGFyYyIsImEiOiJjbGJ5eGx0MXEwOXh2M3BtejBvNmUzM3VpIn0.6cxXNEwIUQeui42i9lbHEg";
+
 const map = new mapboxgl.Map({
     container: "map",
     style: "mapbox://styles/mapbox/streets-v12",
@@ -13,9 +14,15 @@ const map = new mapboxgl.Map({
 // GBIF Source - All Occurences with Coordinates
 const occurencesSource = {
     type: "vector",
-    tiles: ["https:api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}.mvt?"],
-    minzoom: 5,
-    maxzoom: 22,
+    tiles: ["https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}.mvt?"],
+};
+
+// GBIF Source - All iNaturalist Occurences
+const iNaturalistSource = {
+    type: "vector",
+    tiles: [
+        "https://api.gbif.org/v2/map/occurrence/density/{z}/{x}/{y}.mvt?datasetKey=50c9509d-22c7-4a22-a47d-8c48425ef4a7",
+    ],
 };
 
 // GBIF Source - All ICUN (EU) Redlisted Species Occurences
@@ -43,8 +50,23 @@ const occurencesLayer = {
     source: "maps-occurences",
     "source-layer": "occurrence",
     paint: {
-        "circle-radius": 1.5,
-        "circle-color": "#679602",
+        "circle-radius": 2,
+        "circle-color": "#4a8708",
+    },
+    layout: {
+        visibility: "visible",
+    },
+};
+
+// GBIF Layer - All Species Occurences show as small green dots
+const iNaturalistLayer = {
+    id: "iNaturalist",
+    type: "circle",
+    source: "maps-iNaturalist",
+    "source-layer": "occurrence",
+    paint: {
+        "circle-radius": 2,
+        "circle-color": "#acc724",
     },
     layout: {
         visibility: "visible",
@@ -147,6 +169,8 @@ const functionGroup = document.getElementById("function-group");
 const debug = document.getElementById("debug-text");
 const styleMenu = document.getElementById("style-menu");
 const styleMenuInputs = styleMenu.getElementsByTagName("input");
+const slider = document.getElementById("myRange");
+const currentDate = document.getElementById("currentDate");
 
 // Persistant Variables
 var lastPOIClicked = "";
@@ -159,10 +183,8 @@ const draw = newMapboxDraw();
 // Reset the map style if user clicks a new style in the style menu
 for (const input of styleMenuInputs) {
     input.onclick = (layer) => {
-        $(".lds-grid").show();
         const layerId = layer.target.id;
         map.setStyle("mapbox://styles/mapbox/" + layerId);
-        $(".lds-grid").hide();
     };
 }
 
@@ -175,6 +197,7 @@ const popup = new mapboxgl.Popup({
     className: "mapboxgl-popup",
     maxWidth: "none",
 });
+
 
 // Returns a Species Occurence Mapbox Popup for a given species occurence map GeoJSON feature. Also centers the map over the new popup.
 function poiPopup(f) {
@@ -260,6 +283,13 @@ function renderListings(features) {
             map.setFilter("airport", ["has", "abbrev"]);
         }
     }
+}
+
+function trash(){
+   map.removeSource("airports");
+            map.eachLayer(function (layer) {
+                map.removeLayer(layer);
+            });
 }
 
 // Fetch GloBi Species Interaction Data for a list of species (and filter only native results)
@@ -353,20 +383,46 @@ function writeJson(exportObj, exportName) {
     downloadAnchorNode.remove();
 }
 
+// Converts the Occurence GeoJSON Feature Collection to a tabular JSON
+function convertOccurenceFCToTable(featureCollection) {
+    const headers = [
+        "occurenceKey",
+        "taxonKey",
+        "iucnRedListCategory",
+        "image",
+        "long",
+        "lat",
+    ];
+    const rows = featureCollection.features.map((feature) => {
+        const p = feature.properties;
+        return [
+            p.key,
+            p.taxonKey,
+            p.iucnRedListCategory,
+            p.image,
+            feature.geometry.coordinates[0],
+            feature.geometry.coordinates[1],
+        ];
+    });
+    return { headers, rows };
+}
+
 // Download data
 async function downloadGBI(occurences, region, eePixelData) {
     debug.innerHTML = `<p>Compiling Street Map Data... </p>`;
+    const occurencesTable = convertOccurenceFCToTable(occurences);
     const osm = await fetchOSMWithinCoords(region.coords);
-    debug.innerHTML = `Response Data: ${osm}`
+    debug.innerHTML = `Response Data: ${osm}`;
     const speciesPortraits = [];
     debug.innerHTML = `<p>Calculating Unique Taxons... </p>`;
     const uniqueTaxons = getUniqueTaxonKeys(occurences);
     let i = 0;
     const length = uniqueTaxons.length;
-    const upperLimit = 400;
+    const upperLimit = 500;
     if (length < upperLimit) {
         for (const taxon of uniqueTaxons) {
-            debug.innerHTML = `<p>Compiling Species Portraits ${i+1} of ${length}... </p>`;
+            debug.innerHTML = `<p>Compiling Species Portraits ${i + 1
+                } of ${length}... </p>`;
             const sp = await buildSpeciesPortrait(taxon);
             speciesPortraits.push(sp);
             i = i + 1;
@@ -374,9 +430,10 @@ async function downloadGBI(occurences, region, eePixelData) {
         const interactors = createSetAndReplace(speciesPortraits);
         debug.innerHTML = `<p>Compiling Climate Data... </p>`;
         const epw = await fetchEpw("DNK_Copenhagen.061800_IWEC_EPW.json");
+
         const gbi = {
             region: region.poly,
-            occurences: occurences,
+            occurences: occurencesTable,
             portraits: speciesPortraits,
             interactors: interactors,
             epw: epw,
@@ -405,41 +462,30 @@ function reverseAndConvertToString(longLatCoords) {
     return result.trim();
 }
 
+// Fetch OSM Data Via Overpass API with given polygon coordinate array
 async function fetchOSMWithinCoords(inputCoords) {
-    const headers = {
-        'Connection': 'keep-alive',
-        'sec-ch-ua': '"Google Chrome 80"',
-        'Accept': '*/*',
-        'Sec-Fetch-Dest': 'empty',
-        'User-Agent': 'EcologyGIS_DataRetrievl / atsmithpb @ github',
-        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'Origin': 'https://overpass-turbo.eu',
-        'Sec-Fetch-Site': 'cross-site',
-        'Sec-Fetch-Mode': 'cors',
-        'Referer': 'https://overpass-turbo.eu/',
-        'Accept-Language': '',
-        'dnt': '1'
-    };
     const queryPolygon = reverseAndConvertToString(inputCoords);
     const query = `[out:json][timeout:50][maxsize:134217728];nw(poly:"${queryPolygon}");(._;>;);out;`;
-    return await fetch('https://overpass-api.de/api/interpreter', {
+    return await fetch("https://overpass-api.de/api/interpreter", {
         method: "POST",
-        //headers: headers,
-        body: query
+        body: query,
     })
-        .then(response => response.json())
-        .then(data => {return data} )
-        .catch(error => console.error(error));
-
+        .then((response) => response.json())
+        .then((data) => {
+            return data;
+        })
+        .catch((error) => console.error(error));
 }
 
 // Add Data Sources and Layers to Mapbox Map
 function addBaseSourcesAndLayers() {
     map.addSource("maps-occurences", occurencesSource);
+    map.addSource("maps-iNaturalist", iNaturalistSource);
     map.addSource("maps-icunThreat", icunThreatSource);
     map.addSource("augmented-dem", augmentedDemSource);
     map.setTerrain({ source: "augmented-dem", exaggeration: 1.5 });
     map.addLayer(occurencesLayer);
+    map.addLayer(iNaturalistLayer);
     map.addLayer(icunThreatLayer);
     map.addLayer(buildingsLayer);
     map.addLayer(hillshadeLayer, "land-structure-polygon");
@@ -459,12 +505,15 @@ function newMapboxDraw() {
     });
 }
 
+// Functions to execute when the Mapbox map first loads/initializes
 map.on("load", () => {
     map.boxZoom.disable();
     map.addControl(draw);
+    // Hide the DOM loader (visible by CSS default) when map first loads
+    $(".lds-grid").hide();
 });
 
-// A collection of functions to execute when the Mapbox map first loads/initializes
+// Functions to execute when the Mapbox style is (re)loaded
 map.on("style.load", () => {
     addBaseSourcesAndLayers();
     // Load all map symbols and establish cursor/click bahavoir for them
@@ -488,10 +537,11 @@ map.on("style.load", () => {
             map.getCanvas().style.cursor = "";
         });
     }
+    // Reload Species Occurence Data if any exists is persistant storage
     if (occurenceData.data) {
+        addAirportLayer(occurenceData.data);
         addAdditionalSourcesAndLayers(occurenceData.data);
     }
-    $(".lds-grid").hide();
 
     // Update Occurence Search when polygon draw.create/delete/update events occur
     map.on("draw.create", updateSearch);
@@ -519,8 +569,10 @@ map.on("style.load", () => {
     });
 
     // Remove loaded popups if map is touched outside the popup
-    map.on("touchend", (e) => {
-        popup.remove();
+    map.on("touchstart", (e) => {
+        if (popup.isOpen()) {
+            popup.remove();
+        }
     });
 
     // Filter visible features that match the input "filter" value and populate sidebar with results
@@ -579,9 +631,9 @@ map.on("style.load", () => {
     }
 
     // Add additional sources and layers to the map
-    function addAdditionalSourcesAndLayers(gbifGeoJSON) {
-        addExistingSourcesAndLayers(gbifGeoJSON);
-        for (const feature of gbifGeoJSON.features) {
+    function addAdditionalSourcesAndLayers(occurenceFeatureCollection) {
+        document.getElementById("title-filters").innerHTML = "Kingdom Filters";
+        for (const feature of occurenceFeatureCollection.features) {
             const symbol = feature.properties.kingdom;
             const layerID = `poi-${symbol}`;
             // Add a Mapbox Layer for each species kingdom if it hasn't been added already.
@@ -619,48 +671,25 @@ map.on("style.load", () => {
                 }
             }
         }
+        // When style is reloaded, if EE pixel data exists, create (or update) pixel source 
         if (eeData.pixels) {
             if (map.getSource("pixels") == undefined) {
-                const pixelsFc = { type: "FeatureCollection", features: eeData.pixels };
                 map.addSource("pixels", {
                     type: "geojson",
-                    data: pixelsFc,
+                    data: eeData.pixels,
                 });
             } else {
                 map.getSource("pixels").setData(eeData.pixels);
             }
             if (map.getLayer("NDVI") == undefined) {
-                addMapboxLayers();
+                addEEDataLayers();
             }
-        }
-    }
-
-    function addExistingSourcesAndLayers(gbifGeoJSON) {
-        if (map.getSource("airports") == undefined) {
-            map.addSource("airports", {
-                type: "geojson",
-                data: gbifGeoJSON,
-            });
-        } else {
-            map.getSource("airports").setData(gbifGeoJSON);
-        }
-        if (map.getLayer("airport") == undefined) {
-            map.addLayer({
-                id: "airport",
-                type: "circle",
-                source: "airports",
-                paint: {
-                    "circle-radius": 0,
-                    "circle-stroke-width": 0,
-                },
-            });
         }
     }
 
     // Normalize a string
     function normalize(string) {
-        if (string != undefined)
-            return string.trim().toLowerCase();
+        if (string != undefined) return string.trim().toLowerCase();
     }
 
     // Convert Array of GBIF JSON pages into single GeoJSON object (for pagination)
@@ -703,6 +732,28 @@ map.on("style.load", () => {
             offsets[i] = i * 300;
         }
         return offsets;
+    }
+
+    function addAirportLayer(sourceData) {
+        if (map.getSource("airports") == undefined) {
+            map.addSource("airports", {
+                type: "geojson",
+                data: sourceData,
+            });
+        } else {
+            map.getSource("airports").setData(sourceData);
+        }
+        if (map.getLayer("airport") == undefined) {
+            map.addLayer({
+                id: "airport",
+                type: "circle",
+                source: "airports",
+                paint: {
+                    "circle-radius": 0,
+                    "circle-stroke-width": 0,
+                },
+            });
+        }
     }
 
     // Request occurence data within a (geoJSON) polygon
@@ -775,59 +826,34 @@ map.on("style.load", () => {
     // Update Polygon Search Results (invoked when a polygon is created, edited, or deleted)
     async function updateSearch(e) {
         if (e.type == "draw.delete") {
-            map.removeSource("airports");
-            map.eachLayer(function (layer) {
-                map.removeLayer(layer);
-            });
             draw.deleteAll();
-            $(".lds-grid").hide();
         } else if (e.type == "draw.create" || e.type == "draw.update") {
-            $(".lds-grid").show();
             let geoJSONpoly = draw.getAll();
+            draw.deleteAll();
             if (geoJSONpoly.features.length > 0) {
                 const selfIntersections = findSelfIntersects(
                     geoJSONpoly.features[0].geometry.coordinates[0]
                 );
+                // If Search Polygon is self intersecting
                 if (selfIntersections) {
-                    $(".lds-grid").hide();
-                    draw.deleteAll();
                     return;
                 }
+                $(".lds-grid").show();
+                // Possibly Add Size Limit here in future
+                const area = turf.area(geoJSONpoly);
+                console.log(`Client: Selection Area: ${area}m2`);
+                // If Drawn Region is valid
                 const coordinatesPoly = geoJSONpoly.features[0].geometry.coordinates;
-                fetchEarthEngineData(coordinatesPoly);
                 lastPolygon.coords = coordinatesPoly;
                 lastPolygon.poly = geoJSONpoly;
-                const gbifGeoJSON = await pageRequest(geoJSONpoly);
-                occurenceData.data = gbifGeoJSON;
-                //
-                if (map.getSource("airports") == undefined) {
-                    map.addSource("airports", {
-                        type: "geojson",
-                        data: gbifGeoJSON,
-                    });
-                } else {
-                    map.getSource("airports").setData(gbifGeoJSON);
-                }
-                if (map.getLayer("airport") == undefined) {
-                    map.addLayer({
-                        id: "airport",
-                        type: "circle",
-                        source: "airports",
-                        paint: {
-                            "circle-radius": 0,
-                            "circle-stroke-width": 0,
-                        },
-                    });
-                }
-                //
-                draw.deleteAll();
-                $(".lds-grid").hide();
-                document.getElementById("title-filters").innerHTML = "Kingdom Filters";
-                // Create Mapbox Layers and DOM elements to filter them for each species' kingdom
-                addAdditionalSourcesAndLayers(gbifGeoJSON);
+
+                // Species Occurence Fetcing Begins
+                occurenceData.data = await pageRequest(geoJSONpoly);
+                addAirportLayer(occurenceData.data);
+                addAdditionalSourcesAndLayers(occurenceData.data);
                 // Add Button to View All Interactions Network
+                document.getElementById("title-functions").innerHTML = "Functions";
                 if (!functionGroup.contains(document.getElementById("interactions"))) {
-                    document.getElementById("title-functions").innerHTML = "Functions";
                     const interactions = document.createElement("input");
                     interactions.type = "checkbox";
                     interactions.id = "interactions";
@@ -847,16 +873,63 @@ map.on("style.load", () => {
                         initCytoscapeOverlay();
                     });
                 }
+                $(".lds-grid").hide();
+                // Earth Engine Data Fetching Begins
+                // Convert Earth Engine CSV String to Header/Row JSON
+                function bufferToJson(csvString) {
+                    const rows = csvString.trim().split("\n");
+                    const headers = rows.shift().split(",");
+                    const jsonData = new Array(rows.length);
+                    for (let i = 0; i < rows.length; i++) {
+                        const values = rows[i].split(",");
+                        const rowArray = [];
+                        for (let j = 0; j < headers.length; j++) {
+                            rowArray[j] = Number(values[j]);
+                        }
+                        jsonData[i] = rowArray;
+                    }
+                    console.log('Client: returning TableBbject')
+                    return { headers, rows: jsonData };
+                }
+                eeData.string = await fetchEarthEngineData(coordinatesPoly);
+                eeData.table = bufferToJson(eeData.string)
+                delete eeData.string;
+                const tableDatesSet = new Set(eeData.table.rows.map((row) => row[0]));
+                eeData.tableDates = Array.from(tableDatesSet);
+                // Initialize Slider Values
+                slider.max = eeData.tableDates.length - 1;
+                slider.value = eeData.tableDates.length - 1;
+                currentDate.innerHTML = `${eeData.tableDates[slider.max - 1]}`.replace(/(\d{4})(\d{2})(\d{2})/, "$1/$2/$3");
+                eeData.pixels = headerRowJSON_To_GeoJSON(eeData, slider.value);
+                map.addSource("pixels", {
+                    type: "geojson",
+                    data: eeData.pixels,
+                });
+                addEEDataLayers();
             }
         }
     }
 });
-// Add Button to Download data as .gbi once all sources are loaded
+
+// Add Additional Controls to UI all sources are loaded...
 map.on("sourcedata", function (e) {
-    //If EE pixel data is loaded
+    // Once EE pixel data is loaded
     if (map.getSource("pixels") && map.isSourceLoaded("pixels")) {
-        eeData.pixels = map.querySourceFeatures("pixels");
-        // If features are loaded
+        debug.style.bottom = "65px";
+        slider.style.display = "block";
+        currentDate.style.display = "block";
+        // Update slider values when handle is dragged
+        slider.oninput = function () {
+            currentDate.innerHTML = `${eeData.tableDates[this.value - 1]}`.replace(/(\d{4})(\d{2})(\d{2})/, "$1/$2/$3");
+            // Move the Current Date Element with the slider
+            currentDate.style.left = Math.floor((this.value - slider.min) * (263 / slider.max) + 7) + "px";
+            if (eeData.table) {
+                if (map.getSource("pixels") && map.isSourceLoaded("pixels")) {
+                    eeData.pixels = headerRowJSON_To_GeoJSON(eeData, slider.value);
+                    map.getSource("pixels").setData(eeData.pixels);
+                }
+            }
+        };
         if (map.getSource("airports") && map.isSourceLoaded("airports")) {
             // Load download button to Document Function Group
             if (!functionGroup.contains(document.getElementById("map-download"))) {
@@ -872,7 +945,7 @@ map.on("sourcedata", function (e) {
                 downloadLabel.textContent = `Download Data`;
                 functionGroup.appendChild(downloadLabel);
                 download.addEventListener("change", (e) => {
-                    downloadGBI(occurenceData.data, lastPolygon, eeData.pixels);
+                    downloadGBI(occurenceData.data, lastPolygon, eeData.table);
                 });
             }
         }

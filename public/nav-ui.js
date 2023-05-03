@@ -21,6 +21,17 @@ function closeNav() {
   document.getElementById("main").style.marginLeft = "0";
 }
 
+$("#mySidebar").on("swipeleft", function() {
+  var sidebar = $("#mySidebar");
+  if (sidebar.css("width") === "250px") {
+    sidebar.css("width", "0");
+    sidebar.css("marginLeft", "0");
+  } else {
+    sidebar.css("width", "250px");
+    sidebar.css("marginLeft", "250px");
+  }
+});
+
 function overlayOn() {
   document.getElementById('map-overlay').style.display = "flex";
   document.getElementById('interaction-overlay').style.display = "flex";
@@ -58,3 +69,4 @@ function copyPre(event) {
 	popup.style.top = (event.clientY - 70) + "px";
   setTimeout(function(){ popup.style.display = "none"; }, 1000);
 }
+

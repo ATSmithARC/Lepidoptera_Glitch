@@ -919,14 +919,51 @@ padding: 7px;
 z-index: 26;
 left: 7px;
 bottom: 7px;
-width: auto;
-font-family: 'Open Sans', sans-serif;
+width: 346px;
+font-size: 12px;
 }
 #style-menu label {
-padding-right: 5px;
+padding-right: 6.5px;
 }
 #style-menu input[type="radio"] {
 position: relative;
-top: 2px;
+top: 3px;
+}
+#about-pres {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 90%;
+  margin-left: 5%;
+}
+#about-pres img {
+  margin-top: 50px;
+  width: 800px;
+  max-width: 110%;
+  margin-bottom: 20px;
+}
+.slidecontainer { 
+  position: absolute;
+  width: 346px;
+  left: 7px;
+  bottom: 37px;
+  z-index: 26;
+}
+.slider {
+  display: none;
+  width: 100%;
+  height: 40px;
+  outline: none;
+  opacity: 0.7;
+}
+#currentDate{
+  color: var(--SlateBlue);
+  display: none;
+  position: absolute;
+  left: 263px;
+  bottom: 65px;
+  z-index: 26;
+  font-weight:600;
 }
 
