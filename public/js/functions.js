@@ -94,7 +94,7 @@ function removeDuplicateNodesEdges(json) {
 
 // Fetch a Species Checklist for a country (hardcoded to Denmark)
 async function fetchNationalSpeciesList() {
-  const url = "https://lepidoptera.glitch.me/localspecies.json";
+  const url = "https://lepidoptera.glitch.me/localspecies";
   const data = await getDataJSON(url);
   return data;
 }
@@ -166,7 +166,7 @@ async function initInteractionsCy(species, containerID) {
   const interactionData = await fetchInteractionData(species);
   const interactionDataCy = await convertJSON(interactionData, species);
   const style = await getDataJSON(
-    "https://lepidoptera.glitch.me/cytoscape-style.json"
+    "https://lepidoptera.glitch.me/cytoscape-style"
   );
   var cy = cytoscape({
     container: document.getElementById(containerID),

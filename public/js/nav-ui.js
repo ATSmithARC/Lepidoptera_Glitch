@@ -21,6 +21,7 @@ function closeNav() {
   document.getElementById("main").style.marginLeft = "0";
 }
 
+if(document.getElementById("mySidebar")){
 $("#mySidebar").on("swipeleft", function() {
   var sidebar = $("#mySidebar");
   if (sidebar.css("width") === "250px") {
@@ -31,6 +32,7 @@ $("#mySidebar").on("swipeleft", function() {
     sidebar.css("marginLeft", "250px");
   }
 });
+}
 
 function overlayOn() {
   document.getElementById('map-overlay').style.display = "flex";

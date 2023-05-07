@@ -11,14 +11,13 @@
       rel="stylesheet"
     />
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
-    
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
     <script
       src="https://code.jquery.com/jquery-2.2.1.min.js"
       integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
       crossorigin="anonymous"
     ></script>
-    
+
     <script>
       if (location.protocol != "https:") {
         location.href =
@@ -33,16 +32,16 @@
     <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
     <script src="https://js.cytoscape.org/js/cytoscape.min.js"></script>
     <script src="https://unpkg.com/mapbox-gl-draw-waypoint@1.0.3/dist/mapbox-gl-draw-waypoint.min.js"></script>
-    <script src="nav-ui.js"></script>
+    <script src="/js/nav-ui.js"></script>
     <title>Lepidoptera Map</title>
   </head>
-  <body style="overflow-x: clip; overflow-y: clip;"> 
+  <body style="overflow-x: clip; overflow-y: clip">
     <script src="https://unpkg.com/three@0.126.0/build/three.min.js"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
     <div class="topnav" id="myTopnav">
-      <a href="index.html">Home</a>
-      <a href="howto.html">How to</a>
-      <a href="login.html">Log in</a>
+      <a href="/views/index.html">Home</a>
+      <a href="/views/howto.html">How to</a>
+      <a href="/views/login.html">Log in</a>
       <div class="dropdown">
         <div class="active">
           <button class="dropbtn">
@@ -51,21 +50,21 @@
           </button>
         </div>
         <div class="dropdown-content">
-          <a href="map.html">Species Occurence</a>
+          <a href="/views/map.html">Species Occurence</a>
         </div>
       </div>
-      <a href="about.html">About</a>
+      <a href="/views/about.html">About</a>
       <div class="dropdown">
         <button class="dropbtn">
           Utilities
           <i class="fa fa-caret-down"></i>
         </button>
         <div class="dropdown-content">
-          <a href="format-questions.html">Species Narrative</a>
-          <a href="species-interactions.html">Species Interactions</a>
-          <a href="species-portrait.html">Species Portraits</a>
-          <a href="localspecies.json">National Species</a>
-          <a href="cytoscape-style.json">Interaction Style</a>
+          <a href="/views/format-questions.html">Species Narrative</a>
+          <a href="/views/species-interactions.html">Species Interactions</a>
+          <a href="/views/species-portrait.html">Species Portraits</a>
+          <a href="/json/localspecies.json">National Species</a>
+          <a href="/json/cytoscape-style.json">Interaction Style</a>
         </div>
       </div>
       <a href="javascript:void(0);" class="icon" onclick="myFunction()"
@@ -81,25 +80,44 @@
     />
     <div id="main">
       <button class="openbtn" onclick="openNav()">></button>
-      <div id="map"></div>
-      <div id="debug-text"></div>
+      
+      <div id="map">
+        <div id="cy-overlay"></div>
+        <div id="debug-text"></div>
         <div id="currentDate"></div>
         <div id="slidecontainer" class="slidecontainer">
-          <input type="range" min="1" class="slider" id="myRange">
+          <input type="range" min="1" class="slider" id="myRange" />
         </div>
         <div id="style-menu">
-          <input id="streets-v12" type="radio" name="rtoggle" value="streets"  checked="checked"/>
+          <input
+            id="streets-v12"
+            type="radio"
+            name="rtoggle"
+            value="streets"
+            checked="checked"
+          />
           <label for="streets-v12">Streets</label>
-          <input id="satellite-streets-v12" type="radio" name="rtoggle" value="satellite"/>
+          <input
+            id="satellite-streets-v12"
+            type="radio"
+            name="rtoggle"
+            value="satellite"
+          />
           <label for="satellite-v9">Satellite</label>
           <input id="light-v11" type="radio" name="rtoggle" value="light" />
           <label for="light-v11">Light</label>
           <input id="dark-v11" type="radio" name="rtoggle" value="dark" />
           <label for="dark-v11">Dark</label>
-          <input id="outdoors-v12" type="radio" name="rtoggle" value="outdoors" />
+          <input
+            id="outdoors-v12"
+            type="radio"
+            name="rtoggle"
+            value="outdoors"
+          />
           <label for="outdoors-v12">Outdoors</label>
         </div>
-        <div id="cy-overlay"></div>
+      </div>
+      
       <div id="how-to" class="overlay">
         <div class="how-to">
           <h2>About Map:</h2>
@@ -159,7 +177,7 @@
       <p id="title-layers"></p>
       <nav id="layer-menu"></nav>
     </div>
-    <script type="text/javascript" src="functions.js"></script>
-    <script type="text/javascript" src="mapbox.js"></script>
+    <script type="text/javascript" src="/js/functions.js"></script>
+    <script type="text/javascript" src="/js/mapbox.js"></script>
   </body>
 </html>

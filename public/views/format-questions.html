@@ -4,14 +4,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Format Questions</title>
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/css/style.css" />
     <style>
      .required:after {
      content:"*";
      color:red;
      }
     </style>
-    <script src="nav-ui.js"></script>
+    <script src="/js/nav-ui.js"></script>
     <script>
       if (location.protocol != "https:") {
         location.href =
@@ -23,30 +23,30 @@
   <body>
     <section class="navbar">
       <div class="topnav" id="myTopnav">
-        <a href="index.html" class="active">Home</a>
-        <a href="howto.html">How to</a>
-        <a href="login.html">Log in</a>
+        <a href="/views/index.html" class="active">Home</a>
+        <a href="/views/howto.html">How to</a>
+        <a href="/views/login.html">Log in</a>
         <div class="dropdown">
           <button class="dropbtn">
             Maps
             <i class="fa fa-caret-down"></i>
           </button>
           <div class="dropdown-content">
-            <a href="map.html">Species Occurence</a>
+            <a href="/views/map.html">Species Occurence</a>
           </div>
         </div>
-        <a href="about.html">About</a>
+        <a href="/views/about.html">About</a>
         <div class="dropdown">
           <button class="dropbtn">
             Utilities
             <i class="fa fa-caret-down"></i>
           </button>
           <div class="dropdown-content">
-            <a href="format-questions.html">Species Narrative</a>
-            <a href="species-interactions.html">Species Interactions</a>
-            <a href="species-portrait.html">Species Portraits</a>
-            <a href="localspecies.json">National Species</a>
-            <a href="cytoscape-style.json">Interaction Style</a>
+            <a href="/views/format-questions.html">Species Narrative</a>
+            <a href="/views/species-interactions.html">Species Interactions</a>
+            <a href="/views/species-portrait.html">Species Portraits</a>
+            <a href="/json/localspecies.json">National Species</a>
+            <a href="/json/cytoscape-style.json">Interaction Style</a>
           </div>
         </div>
         <a href="javascript:void(0);" class="icon" onclick="myFunction()">&#9776;</a>
@@ -92,6 +92,6 @@
         <pre id="sp-json"></pre>
     </div>
      <div id="debug-text"></div><br />
-    <script type="text/javascript" src="format-questions.js"></script>
+    <script type="text/javascript" src="/js/format-questions.js"></script>
   </body>
 </html>
