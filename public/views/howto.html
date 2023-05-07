@@ -4,15 +4,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lepidoptera How-To</title>
-    <link rel="stylesheet" href="/public/style.css">
-    <script src="nav-ui.js"></script>
+    <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/nav-ui.js"></script>
+    
+    <script>
+      if (location.protocol != "https:") {
+        location.href =
+          "https:" +
+          window.location.href.substring(window.location.protocol.length);
+      }
+    </script>
+    
   </head>
   <body>
     <section class="navbar">
       <div class="topnav" id="myTopnav">
-        <a href="index.html" >Home</a>
-        <a href="howto.html" >How to</a>
-        <a href="login.html">Log in</a>
+        <a href="/views/index.html" >Home</a>
+        <a href="/views/howto.html" class="active">How to</a>
+        <a href="/views/login.html">Log in</a>
         <div class="dropdown">
           <button class="dropbtn">
             Maps
@@ -22,18 +31,18 @@
             <a href="map.html">Species Occurence</a>
           </div>
         </div>
-        <a href="about.html">About</a>
+        <a href="/views/about.html">About</a>
         <div class="dropdown">
           <button class="dropbtn">
             Utilities
             <i class="fa fa-caret-down"></i>
           </button>
           <div class="dropdown-content">
-            <a href="format-questions.html">Species Narrative</a>
-            <a href="species-interactions.html">Species Interactions</a>
-            <a href="species-portrait.html">Species Portraits</a>
-            <a href="localspecies.json">National Species</a>
-            <a href="cytoscape-style.json">Interaction Style</a>
+            <a href="/views/format-questions.html">Species Narrative</a>
+            <a href="/views/species-interactions.html">Species Interactions</a>
+            <a href="/views/species-portrait.html">Species Portraits</a>
+            <a href="/json/localspecies.json">National Species</a>
+            <a href="/json/cytoscape-style.json">Interaction Style</a>
           </div>
         </div>
         <a href="javascript:void(0);" class="icon" onclick="myFunction()"
@@ -41,9 +50,5 @@
         >
       </div>
     </section>
-    
-    <script src="https://code.jquery.com/jquery-2.2.1.min.js"
-            integrity="sha256-gvQgAFzTH6trSrAWoH1iPo9Xc96QxSZ3feW6kem+O00="
-            crossorigin="anonymous"></script>
   </body>
 </html>

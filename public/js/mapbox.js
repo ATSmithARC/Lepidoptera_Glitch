@@ -797,7 +797,7 @@ map.on("style.load", () => {
         const inputSpeciesArray = getSpeciesArray(renderedMapFeatures);
         const interactionData = await fetchMultiInteractionData(inputSpeciesArray);
         const style = await getDataJSON(
-            "https://lepidoptera.glitch.me/cytoscape-style.json"
+            "https://lepidoptera.glitch.me/cytoscape-style"
         );
         // Set Nodes and Edges of network
         const elements = removeDuplicateNodesEdges(interactionData);
