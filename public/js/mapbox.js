@@ -50,7 +50,7 @@ const occurencesLayer = {
     source: "maps-occurences",
     "source-layer": "occurrence",
     paint: {
-        "circle-radius": 2,
+        "circle-radius":1.5,
         "circle-color": "#4a8708",
     },
     layout: {
@@ -65,7 +65,7 @@ const iNaturalistLayer = {
     source: "maps-iNaturalist",
     "source-layer": "occurrence",
     paint: {
-        "circle-radius": 2,
+        "circle-radius": 1.5,
         "circle-color": "#acc724",
     },
     layout: {
@@ -88,7 +88,7 @@ const icunThreatLayer = {
     },
 };
 
-// Mapbox Layer - 3D Buildings show as ghosted extrusions
+// Mapbox Layer - 3D Buildings shown as ghosted extrusions
 const buildingsLayer = {
     id: "3d-buildings-layer",
     source: "composite",
@@ -120,14 +120,14 @@ const buildingsLayer = {
     },
 };
 
-// Mapbox Layer - Add shading effect to map based on DEM Terrain
+// Mapbox Layer - Add shading effect to map based on Terrain
 const hillshadeLayer = {
     id: "hillshading",
     source: "augmented-dem",
     type: "hillshade",
 };
 
-// Symbols/Icons displayed for different species occurences based on kingdoms
+// Define Symbols/Icon Images to be displayed for different species occurences based on kingdoms
 const mapSymbols = [
     {
         name: "Fungi",

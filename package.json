@@ -1,7 +1,7 @@
 {
   "name": "glitch-hello-node",
   "version": "0.1.0",
-  "description": "A React + Node app built on fastify. Built to be remixed on Glitch.com.",
+  "description": "A React + Node app built on Express. Built to be remixed on Glitch.com.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -12,17 +12,8 @@
     "body-parser": "^1.20.2",
     "@google-cloud/storage": "^6.10.0",
     "shortid": "^2.2.16",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-spring": "^9.7.1",
-    "wouter": "^2.10.1",
-    "react-helmet-async": "^1.3.0",
-    "@vitejs/plugin-react": "^4.0.0",
-    "cors": "^2.8.5",
-    "express-session": "^1.17.3"
-  },
-  "devDependencies": {
-    "vite": "^4.0.0"
+    "express-session": "^1.17.3",
+    "cors": "^2.8.5"
   },
   "browserslist": [
     ">0.2%",
