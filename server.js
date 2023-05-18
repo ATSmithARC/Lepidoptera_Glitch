@@ -3,13 +3,10 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const bodyParser = require("body-parser");
-
+const privateKey = 
 const ee = require("@google/earthengine");
 const shortid = require("shortid");
-const session = require("express-session")
-
-//ee.data.authenticateViaPrivateKey(privateKey);
-//ee.initialize();
+const session = require("express-session");
 
 // Get Express Middleware
 app.use(express.static("public"));
@@ -24,6 +21,8 @@ app.use(
   })
 );
 
+
+
 // Static Routing w/ Express 
 app.get('/echo', (req, res) => {
     res.json({ message: "Hello from the backend!" });
@@ -37,17 +36,11 @@ app.get('/about', (req, res) => {
 app.get("/format-questions", (req, res) => {
     res.sendFile(__dirname + "/public/views/format-questions.html");
 });
-app.get("/howto", (req, res) => {
-    res.sendFile(__dirname + "/public/views/howto.html");
-});
 app.get("/login", (req, res) => {
     res.sendFile(__dirname + "/public/views/login.html");
 });
 app.get("/map", (req, res) => {
     res.sendFile(__dirname + "/public/views/map.html");
-});
-app.get("/my-account", (req, res) => {
-    res.sendFile(__dirname + "/public/views/my-account.html");
 });
 app.get("/species-interactions", (req, res) => {
     res.sendFile(__dirname + "/public/views/species-interactions.html");
@@ -66,7 +59,7 @@ app.get("/localspecies", (req, res) => {
 });
 
 // Listen for requests
-const listener = app.listen(process.env.PORT, function () {
+const listener = app.listen(process.env.PORT_EXPRESS, function () {
     console.log("Server: Lepidoptera is listening on port " + listener.address().port);
 });
 
